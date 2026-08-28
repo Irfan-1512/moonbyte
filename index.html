@@ -292,6 +292,10 @@ let systemPrompt = modes.general;
 
   addMessage("assistant", welcomes[mode]);
   conversationHistory.length = 0;
+  general: `You are Moonbyte, Irfan's personal AI...
+...
+- Learning: HTML, CSS, JavaScript, Node.js, DSA
+- Current date and time: ${new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})}`
 }
 function clearMemory() {
   localStorage.removeItem('moonbyte-history');
@@ -310,9 +314,17 @@ function clearMemory() {
       input.value = "";
       btn.disabled = true;
 
+// Check if it's a math expression
+const mathRegex = /^[\d\s\+\-\*\/\(\)\.]+$/;
+let processedText = userText;
+if (mathRegex.test(userText)) {
+  const result = calculate(userText);
+  processedText = `${userText} = ${result}`;
+}
+
 conversationHistory.push({
   role: "user",
-  content: userText
+  content: processedText
 });
 
       const thinkingDiv = addMessage("thinking", "Moonbyte is thinking...");
@@ -407,6 +419,13 @@ thinkingDiv.innerHTML = reply
     btn.classList.remove("listening");
     btn.textContent = "🎤";
   };
+}
+function calculate(expression) {
+  try {
+    return eval(expression);
+  } catch {
+    return "Invalid calculation";
+  }
 }
   </script>
 
