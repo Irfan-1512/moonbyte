@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moonbyte</title>
+  <style>
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #eee;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      
+      align-items: center;
+      justify-content: center;
+    }
+    #chat-box {
+      width: 650px;
+      height: 70vh;
+      background: #111118;
+      border-radius: 16px;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border: 1px solid #2a2a3a;
+    }
+    .message {
+      padding: 12px 16px;
+      border-radius: 12px;
+      max-width: 80%;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .user {
+      background: #6c63ff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .assistant {
+      background: #1a1a24;
+      align-self: flex-start;
+      border: 1px solid #2a2a3a;
+      border-bottom-left-radius: 4px;
+    }
+    .thinking {
+      background: #1a1a24;
+      align-self: flex-start;
+      border: 1px solid #2a2a3a;
+      opacity: 0.6;
+      font-style: italic;
+      font-size: 13px;
+    }
+    #input-area {
+      width: 650px;
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    #user-input {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #2a2a3a;
+      background: #111118;
+      color: #eee;
+      font-size: 14px;
+      outline: none;
+    }
+    #user-input:focus { border-color: #6c63ff; }
+    button {
+      padding: 14px 22px;
+      background: #6c63ff;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    button:hover { background: #5a52e0; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #header {
+      width: 650px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    #header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #a78bfa;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    #mode-selector {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #2a2a3a;
+  background: #111118;
+  color: #6b6b80;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover {
+  border-color: #6c63ff;
+  color: #a78bfa;
+}
+
+.mode-btn.active {
+  background: rgba(108, 99, 255, 0.15);
+  border-color: #6c63ff;
+  color: #a78bfa;
+}
+#clear-btn {
+  margin-left: auto;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #2a2a3a;
+  background: #111118;
+  color: #6b6b80;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#clear-btn:hover {
+  border-color: red;
+  color: red;
+}
+#mic-btn {
+  padding: 14px 16px;
+  background: #1a1a24;
+  color: white;
+  border: 1px solid #2a2a3a;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+#mic-btn:hover {
+  border-color: #6c63ff;
+}
+
+#mic-btn.listening {
+  background: rgba(108, 99, 255, 0.3);
+  border-color: #6c63ff;
+  animation: pulse 1s infinite;
+}
+  </style>
+</head>
+<body>
+
+  <div id="header">
+  <div class="dot"></div>
+  <h1>Moonbyte</h1>
+  <div id="mode-selector">
+    <button class="mode-btn active" onclick="switchMode('general')">💬 General</button>
+    <button class="mode-btn" onclick="switchMode('study')">📚 Study</button>
+    <button class="mode-btn" onclick="switchMode('code')">💻 Code</button>
+    <button class="mode-btn" onclick="switchMode('style')">👔 Style</button>
+    <button class="mode-btn" onclick="switchMode('recipe')">🍳 Recipe</button>
+  </div>
+  <button id="clear-btn" onclick="clearMemory()">🗑️ Clear</button>
+</div>
+
+  <div id="chat-box"></div>
+
+  <div id="input-area">
+    <input id="user-input" type="text" placeholder="Ask Moonbyte anything..." />
+<button id="mic-btn" onclick="startVoice()">🎤</button>
+<button id="send-btn" onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+  // API key hidden in Netlify environment variables
+    const conversationHistory = JSON.parse(localStorage.getItem('moonbyte-history')) || [];
+
+    // System prompt — Moonbyte's personality
+  const modes = {
+  general: `You are Moonbyte, Irfan's personal AI. Talk to him like a close friend — casual, warm, real. Never sound robotic or formal.
+
+Here's everything about Irfan:
+- 2nd year CSE student at ACE Engineering College, Hyderabad
+- Calm and chill personality
+- Interests: web development, fashion, cooking, AI, Marvel (favourite: Moon Knight)
+- Projects: Gentleman's Wardrobe (fashion website), My Kitchen Diaries (recipe app), Moonbyte (this AI)
+- Favourite food: biryani and pizza
+- Username: moonbyte
+- Goals: campus placements in 3rd year, become a web developer
+- Learning: HTML, CSS, JavaScript, Node.js, DSA
+
+How to talk to him:
+- Keep it short and casual like texting a friend
+- No bullet points unless necessary
+- No formal language
+- Use his name sometimes but not every message
+- Be real, be human, be warm`,
+
+  study: `You are Moonbyte in Study Mode helping Irfan. He's a CSE student studying DBMS, OS, DSA, Java, web development. Explain simply like a friend who's good at studies. Keep it easy to understand, give examples, motivate him when needed. No robotic explanations.`,
+
+  code: `You are Moonbyte in Code Mode. Help Irfan with code like a senior developer friend. He knows HTML, CSS, JavaScript and is learning more. Be direct, explain clearly, fix his bugs, suggest improvements. Talk casually.`,
+
+  style: `You are Moonbyte in Style Mode. You are Irfan's personal fashion advisor and friend. He's into men's fashion and style. Give practical outfit advice for a college student in Hyderabad. Be real and casual about it.`,
+
+  recipe: `You are Moonbyte in Recipe Mode. Help Irfan with cooking like a foodie friend. He loves biryani and pizza. Suggest simple practical recipes. Keep it fun and casual.`
+};
+
+let currentMode = "general";
+let systemPrompt = modes.general;
+
+    // Welcome message
+   window.onload = () => {
+  const saved = localStorage.getItem('moonbyte-history');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    parsed.forEach(msg => {
+      addMessage(msg.role === "user" ? "user" : "assistant", msg.content);
+    });
+    addMessage("assistant", "Welcome back Irfan! 🌙 I remember our last conversation.");
+  } else {
+    addMessage("assistant", "Hey Irfan! 🌙 Moonbyte is online. What can I help you with today?");
+  }
+};
+    function switchMode(mode) {
+  currentMode = mode;
+  systemPrompt = modes[mode];
+
+  // Update active button
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+
+  // Clear chat
+  document.getElementById('chat-box').innerHTML = '';
+
+  // Welcome message for each mode
+  const welcomes = {
+    general: "Hey Irfan! 🌙 Switched to General mode. What's on your mind?",
+    study: "📚 Study Mode ON! What subject are we tackling today Irfan?",
+    code: "💻 Code Mode ON! Share your code or tell me what you're building Irfan!",
+    style: "👔 Style Mode ON! Let's talk fashion Irfan. What's the occasion?",
+    recipe: "🍳 Recipe Mode ON! Hungry Irfan? Tell me what ingredients you have!"
+  };
+
+  addMessage("assistant", welcomes[mode]);
+  conversationHistory.length = 0;
+}
+function clearMemory() {
+  localStorage.removeItem('moonbyte-history');
+  conversationHistory.length = 0;
+  document.getElementById('chat-box').innerHTML = '';
+  addMessage("assistant", "Memory cleared! Fresh start Irfan. 🌙");
+}
+
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const btn = document.getElementById("send-btn");
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      addMessage("user", userText);
+      input.value = "";
+      btn.disabled = true;
+
+conversationHistory.push({
+  role: "user",
+  content: userText
+});
+
+      const thinkingDiv = addMessage("thinking", "Moonbyte is thinking...");
+
+     try {
+  let reply = null;
+
+  // Try Groq first
+  try {
+    const groqResponse = await fetch("/.netlify/functions/chat", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    messages: conversationHistory,
+    systemPrompt: systemPrompt
+  })
+});
+const groqData = await groqResponse.json();
+if (groqData.reply) {
+  reply = groqData.reply;
+  console.log("Groq responded ✅");
+}
+  } catch (groqError) {
+    console.log("Groq failed, switching to Gemini... 🔄");
+  }
+
+  conversationHistory.push({
+    role: "assistant",
+    content: reply
+  });
+
+  localStorage.setItem('moonbyte-history', JSON.stringify(conversationHistory));
+
+thinkingDiv.className = "message assistant";
+thinkingDiv.innerHTML = reply
+  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+  .replace(/\*(.*?)\*/g, '<em>$1</em>')
+  .replace(/\n/g, '<br>');
+}      catch (error) {
+  thinkingDiv.className = "message assistant";
+  thinkingDiv.textContent = "Something went wrong. Try again!";
+  console.log("Error:", error);
+}
+
+      btn.disabled = false;
+      input.focus();
+    }
+
+   function addMessage(role, text) {
+  const box = document.getElementById("chat-box");
+  const div = document.createElement("div");
+  div.className = `message ${role}`;
+  div.innerHTML = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+    document.getElementById("user-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+    function startVoice() {
+  const btn = document.getElementById("mic-btn");
+  const input = document.getElementById("user-input");
+
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "en-IN";
+  recognition.interimResults = false;
+
+  btn.classList.add("listening");
+  btn.textContent = "🔴";
+
+  recognition.start();
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    input.value = transcript;
+    btn.classList.remove("listening");
+    btn.textContent = "🎤";
+    sendMessage();
+  };
+
+  recognition.onerror = () => {
+    btn.classList.remove("listening");
+    btn.textContent = "🎤";
+  };
+
+  recognition.onend = () => {
+    btn.classList.remove("listening");
+    btn.textContent = "🎤";
+  };
+}
+  </script>
+
+</body>
+</html>
