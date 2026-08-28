@@ -337,9 +337,9 @@ conversationHistory.push({
     const groqResponse = await fetch("/.netlify/functions/chat", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
+    body: JSON.stringify({
     messages: conversationHistory,
-    systemPrompt: systemPrompt
+    systemPrompt: systemPrompt + `\n- Current date and time: ${new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})}`
   })
 });
 const groqData = await groqResponse.json();
