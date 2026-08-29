@@ -292,10 +292,6 @@ let systemPrompt = modes.general;
 
   addMessage("assistant", welcomes[mode]);
   conversationHistory.length = 0;
-  general: `You are Moonbyte, Irfan's personal AI...
-...
-- Learning: HTML, CSS, JavaScript, Node.js, DSA
-- Current date and time: ${new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})}`
 }
 function clearMemory() {
   localStorage.removeItem('moonbyte-history');
@@ -339,7 +335,7 @@ conversationHistory.push({
   headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
     messages: conversationHistory,
-    systemPrompt: systemPrompt + `\n- Current date and time: ${new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})}`
+systemPrompt: systemPrompt + `\n\nIMPORTANT: Current date and time in Hyderabad is: ${new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})}. When asked about time or date, use this information and answer directly.`
   })
 });
 const groqData = await groqResponse.json();
