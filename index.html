@@ -335,7 +335,7 @@ conversationHistory.push({
   headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
     messages: conversationHistory,
-systemPrompt: systemPrompt + `\n\nIMPORTANT: Current date and time in Hyderabad is: ${new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})}. When asked about time or date, use this information and answer directly.`
+   systemPrompt: systemPrompt + `\n\nCURRENT TIME RIGHT NOW: ${new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})}. This is the LIVE current time. When user asks for time or date, directly tell them this exact time. Don't say you don't have access to time.`
   })
 });
 const groqData = await groqResponse.json();
