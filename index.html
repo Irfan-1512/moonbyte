@@ -21,7 +21,6 @@
       --ai-border: rgba(255,255,255,0.08);
       --input-bg: rgba(255,255,255,0.05);
     }
-
     :root[data-theme="light"] {
       --bg: #f0f0f2;
       --glass: rgba(255,255,255,0.7);
@@ -50,7 +49,6 @@
       transition: background 0.3s;
     }
 
-    /* Ambient background */
     body::before {
       content: '';
       position: fixed;
@@ -60,7 +58,6 @@
       z-index: 0;
     }
 
-    /* ===== SIDEBAR ===== */
     .sidebar {
       width: 260px;
       background: var(--glass);
@@ -68,14 +65,13 @@
       border-right: 1px solid var(--glass-border);
       display: flex;
       flex-direction: column;
-      padding: 20px 0;
       flex-shrink: 0;
       z-index: 10;
       transition: transform 0.3s ease;
     }
 
     .sidebar-logo {
-      padding: 0 20px 20px;
+      padding: 20px;
       border-bottom: 1px solid var(--glass-border);
       display: flex;
       align-items: center;
@@ -144,43 +140,32 @@
       text-overflow: ellipsis;
     }
 
-    .chat-history-item:hover {
-      background: var(--glass-hover);
-      color: var(--text);
-    }
-
-    .chat-history-item.active {
-      background: rgba(147,148,165,0.15);
-      color: var(--accent2);
-    }
+    .chat-history-item:hover { background: var(--glass-hover); color: var(--text); }
+    .chat-history-item.active { background: rgba(147,148,165,0.15); color: var(--accent2); }
 
     .sidebar-bottom {
       padding: 16px 20px;
       border-top: 1px solid var(--glass-border);
       display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: var(--user-bg);
-      display: flex;
-      align-items: center;
       justify-content: center;
-      font-weight: 600;
-      font-size: 13px;
-      color: white;
-      flex-shrink: 0;
+      align-items: center;
     }
 
-    .profile-info { flex: 1; }
-    .profile-name { font-size: 13px; font-weight: 500; }
-    .profile-role { font-size: 11px; color: var(--text2); }
+    .moon-ascii {
+      font-family: monospace;
+      font-size: 9px;
+      color: var(--accent);
+      line-height: 1.3;
+      text-align: center;
+      animation: moonGlow 3s ease-in-out infinite;
+      white-space: pre;
+    }
 
-    /* ===== MAIN ===== */
+    @keyframes moonGlow {
+      0%, 100% { opacity: 0.5; text-shadow: 0 0 4px var(--accent); }
+      50% { opacity: 1; text-shadow: 0 0 12px var(--accent2), 0 0 20px var(--accent); }
+    }
+
     .main {
       flex: 1;
       display: flex;
@@ -190,7 +175,6 @@
       z-index: 1;
     }
 
-    /* Header */
     .header {
       display: flex;
       align-items: center;
@@ -262,12 +246,8 @@
       color: var(--text);
     }
 
-    .icon-btn:hover {
-      background: var(--glass-hover);
-      border-color: var(--accent);
-    }
+    .icon-btn:hover { background: var(--glass-hover); border-color: var(--accent); }
 
-    /* Modes bar */
     .modes-bar {
       display: flex;
       gap: 6px;
@@ -297,14 +277,8 @@
     }
 
     .mode-btn:hover { border-color: var(--accent); color: var(--accent2); }
+    .mode-btn.active { background: rgba(147,148,165,0.15); border-color: var(--accent); color: var(--accent2); }
 
-    .mode-btn.active {
-      background: rgba(147,148,165,0.15);
-      border-color: var(--accent);
-      color: var(--accent2);
-    }
-
-    /* Chat box */
     #chat-box {
       flex: 1;
       overflow-y: auto;
@@ -317,11 +291,10 @@
     #chat-box::-webkit-scrollbar { width: 3px; }
     #chat-box::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
 
-    /* Messages */
     .message {
       display: flex;
       gap: 10px;
-      max-width: 75%;
+      max-width: 78%;
       animation: fadeIn 0.3s ease;
     }
 
@@ -333,6 +306,30 @@
     .message.user { align-self: flex-end; flex-direction: row-reverse; }
     .message.assistant, .message.thinking { align-self: flex-start; }
 
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      align-self: flex-end;
+    }
+
+    .msg-avatar.ai-av {
+      background: linear-gradient(135deg, #6b6c7e, #9394a5);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .msg-avatar.user-av {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+    }
+
+    .msg-content { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+
     .msg-bubble {
       padding: 12px 16px;
       border-radius: 16px;
@@ -343,26 +340,20 @@
     .message.assistant .msg-bubble, .message.thinking .msg-bubble {
       background: var(--ai-bg);
       border: 1px solid var(--ai-border);
-      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
       backdrop-filter: blur(10px);
       color: var(--text);
-      font-style: normal;
     }
 
-    .message.thinking .msg-bubble {
-      opacity: 0.6;
-      font-style: italic;
-      font-size: 13px;
-    }
+    .message.thinking .msg-bubble { opacity: 0.6; font-style: italic; font-size: 13px; }
 
     .message.user .msg-bubble {
       background: var(--user-bg);
-      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
       color: white;
       box-shadow: 0 4px 15px var(--accent-glow);
     }
 
-    /* Input area */
     .input-area {
       padding: 14px 20px 18px;
       background: var(--glass);
@@ -374,11 +365,7 @@
       flex-shrink: 0;
     }
 
-    .input-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .input-row { display: flex; gap: 8px; align-items: center; }
 
     .input-wrap {
       flex: 1;
@@ -438,18 +425,14 @@
       flex-shrink: 0;
       font-size: 18px;
       padding: 0;
+      color: white;
     }
 
-    #send-btn:hover { transform: scale(1.05); background: var(--user-bg); }
+    #send-btn:hover { transform: scale(1.05); }
     #send-btn:disabled { opacity: 0.5; transform: none; }
 
-    .input-hint {
-      font-size: 11px;
-      color: var(--text2);
-      text-align: center;
-    }
+    .input-hint { font-size: 11px; color: var(--text2); text-align: center; }
 
-    /* Mobile overlay */
     .sidebar-overlay {
       display: none;
       position: fixed;
@@ -458,7 +441,6 @@
       z-index: 9;
     }
 
-    /* ===== MOBILE ===== */
     @media (max-width: 768px) {
       .sidebar {
         position: fixed;
@@ -468,11 +450,9 @@
         transform: translateX(-100%);
         z-index: 100;
       }
-
       .sidebar.open { transform: translateX(0); }
       .sidebar-overlay.open { display: block; }
       .hamburger { display: flex; }
-
       .message { max-width: 90%; font-size: 13px; }
       .mode-btn { font-size: 11px; padding: 5px 10px; }
       #send-btn { width: 40px; height: 40px; }
@@ -481,10 +461,8 @@
 </head>
 <body>
 
-  <!-- Sidebar overlay for mobile -->
   <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
-  <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <span class="sidebar-logo-icon">🌙</span>
@@ -493,24 +471,20 @@
     <div class="sidebar-section">
       <button class="new-chat-btn" onclick="clearMemory()">✚ New Chat</button>
       <div class="sidebar-label">Recent</div>
-      <div class="chat-history-item active">💬 Current conversation</div>
-      <div class="chat-history-item">📚 DBMS — 3NF explained</div>
-      <div class="chat-history-item">👔 Outfit advice</div>
-      <div class="chat-history-item">🍳 Biryani recipe</div>
+      <div id="chat-history"></div>
     </div>
     <div class="sidebar-bottom">
-      <div class="avatar">I</div>
-      <div class="profile-info">
-        <div class="profile-name">Irfan</div>
-        <div class="profile-role">ACE Engineering, CSE</div>
-      </div>
+      <pre class="moon-ascii">    .  .  .
+  .  ██████  .
+ . ████████  .
+ . ████████  .
+  .  ██████  .
+    .  .  .
+   ~ moonbyte ~</pre>
     </div>
   </div>
 
-  <!-- Main -->
   <div class="main">
-
-    <!-- Header -->
     <div class="header">
       <div class="header-left">
         <button class="hamburger" onclick="toggleSidebar()">☰</button>
@@ -518,7 +492,7 @@
           <div class="status-dot"></div>
           <span class="status-text">Online</span>
         </div>
-        <span class="header-title">General Chat</span>
+        <span class="header-title" id="mode-title">💬 General</span>
       </div>
       <div class="header-right">
         <button class="icon-btn" onclick="toggleTheme()" id="theme-btn">☀️</button>
@@ -526,7 +500,6 @@
       </div>
     </div>
 
-    <!-- Modes -->
     <div class="modes-bar">
       <button class="mode-btn active" onclick="switchMode('general', this)">💬 General</button>
       <button class="mode-btn" onclick="switchMode('study', this)">📚 Study</button>
@@ -535,10 +508,8 @@
       <button class="mode-btn" onclick="switchMode('recipe', this)">🍳 Recipe</button>
     </div>
 
-    <!-- Chat -->
     <div id="chat-box"></div>
 
-    <!-- Input -->
     <div class="input-area">
       <div class="input-row">
         <div class="input-wrap">
@@ -549,12 +520,11 @@
       </div>
       <div class="input-hint">Press Enter to send · Switch modes above</div>
     </div>
-
   </div>
 
   <script>
-    // API key hidden in Netlify environment variables
     const conversationHistory = JSON.parse(localStorage.getItem('moonbyte-history')) || [];
+    let chatSessions = JSON.parse(localStorage.getItem('moonbyte-sessions')) || [];
 
     const modes = {
       general: `You are Moonbyte, Irfan's personal AI. Talk to him like a close friend — casual, warm, real. Never sound robotic or formal.
@@ -577,16 +547,24 @@ How to talk to him:
 - Be real, be human, be warm`,
 
       study: `You are Moonbyte in Study Mode helping Irfan. He's a CSE student studying DBMS, OS, DSA, Java, web development. Explain simply like a friend who's good at studies. Keep it easy to understand, give examples, motivate him when needed. No robotic explanations.`,
-
       code: `You are Moonbyte in Code Mode. Help Irfan with code like a senior developer friend. He knows HTML, CSS, JavaScript and is learning more. Be direct, explain clearly, fix his bugs, suggest improvements. Talk casually.`,
-
       style: `You are Moonbyte in Style Mode. You are Irfan's personal fashion advisor and friend. He's into men's fashion and style. Give practical outfit advice for a college student in Hyderabad. Be real and casual about it.`,
-
       recipe: `You are Moonbyte in Recipe Mode. Help Irfan with cooking like a foodie friend. He loves biryani and pizza. Suggest simple practical recipes. Keep it fun and casual.`
     };
 
     let currentMode = "general";
     let systemPrompt = modes.general;
+
+    function renderChatHistory() {
+      const container = document.getElementById('chat-history');
+      container.innerHTML = '';
+      chatSessions.slice(-8).reverse().forEach((session, i) => {
+        const div = document.createElement('div');
+        div.className = 'chat-history-item' + (i === 0 ? ' active' : '');
+        div.textContent = session.title || 'Conversation';
+        container.appendChild(div);
+      });
+    }
 
     window.onload = () => {
       const saved = localStorage.getItem('moonbyte-history');
@@ -600,6 +578,7 @@ How to talk to him:
       } else {
         addMessage("assistant", "Hey Irfan! 🌙 Moonbyte is online. What can I help you with today?");
       }
+      renderChatHistory();
     };
 
     function switchMode(mode, btn) {
@@ -607,7 +586,7 @@ How to talk to him:
       systemPrompt = modes[mode];
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.querySelector('.header-title').textContent = btn.textContent.trim();
+      document.getElementById('mode-title').textContent = btn.textContent.trim();
       document.getElementById('chat-box').innerHTML = '';
       const welcomes = {
         general: "Hey Irfan! 🌙 Switched to General mode. What's on your mind?",
@@ -621,6 +600,13 @@ How to talk to him:
     }
 
     function clearMemory() {
+      if (conversationHistory.length > 0) {
+        const firstMsg = conversationHistory.find(m => m.role === 'user');
+        const title = firstMsg ? firstMsg.content.slice(0, 30) + '...' : 'Conversation';
+        chatSessions.push({ title, time: Date.now() });
+        localStorage.setItem('moonbyte-sessions', JSON.stringify(chatSessions));
+        renderChatHistory();
+      }
       localStorage.removeItem('moonbyte-history');
       conversationHistory.length = 0;
       document.getElementById('chat-box').innerHTML = '';
@@ -645,7 +631,6 @@ How to talk to him:
       }
 
       conversationHistory.push({ role: "user", content: processedText });
-
       const thinkingDiv = addMessage("thinking", "Moonbyte is thinking...");
 
       try {
@@ -656,27 +641,22 @@ How to talk to him:
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               messages: conversationHistory,
-              systemPrompt: systemPrompt + `\n\nCURRENT TIME RIGHT NOW: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}. This is the LIVE current time. When user asks for time or date, directly tell them this exact time.`
+              systemPrompt: systemPrompt + `\n\nCURRENT TIME RIGHT NOW: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}. When user asks for time or date, directly tell them this exact time.`
             })
           });
           const groqData = await groqResponse.json();
-          if (groqData.reply) {
-            reply = groqData.reply;
-          }
-        } catch (groqError) {
-          console.log("Groq failed 🔄");
-        }
+          if (groqData.reply) reply = groqData.reply;
+        } catch (e) { console.log("Groq failed 🔄"); }
 
-        conversationHistory.push({ role: "assistant", content: reply });
+        conversationHistory.push({ role: "assistant", content: reply || "Something went wrong." });
         localStorage.setItem('moonbyte-history', JSON.stringify(conversationHistory));
 
         thinkingDiv.className = "message assistant";
-        thinkingDiv.querySelector ? thinkingDiv.innerHTML = formatReply(reply) : null;
-        thinkingDiv.innerHTML = `<div class="msg-bubble">${formatReply(reply || "Something went wrong. Try again!")}</div>`;
+        thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(reply || "Something went wrong. Try again!")}</div></div>`;
 
       } catch (error) {
         thinkingDiv.className = "message assistant";
-        thinkingDiv.innerHTML = `<div class="msg-bubble">Something went wrong. Try again!</div>`;
+        thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">Something went wrong. Try again!</div></div>`;
       }
 
       btn.disabled = false;
@@ -694,7 +674,11 @@ How to talk to him:
       const box = document.getElementById("chat-box");
       const div = document.createElement("div");
       div.className = `message ${role}`;
-      div.innerHTML = `<div class="msg-bubble">${formatReply(text)}</div>`;
+      if (role === "user") {
+        div.innerHTML = `<div class="msg-avatar user-av">👤</div><div class="msg-content"><div class="msg-bubble">${formatReply(text)}</div></div>`;
+      } else {
+        div.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(text)}</div></div>`;
+      }
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
       return div;
@@ -752,6 +736,5 @@ How to talk to him:
       document.getElementById('overlay').classList.remove('open');
     }
   </script>
-
 </body>
 </html>
