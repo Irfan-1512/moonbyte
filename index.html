@@ -457,6 +457,133 @@
       .mode-btn { font-size: 11px; padding: 5px 10px; }
       #send-btn { width: 40px; height: 40px; }
     }
+    /* Micro animations */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ripple {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+@keyframes typingDot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+.message {
+  animation: fadeSlideIn 0.3s ease forwards;
+}
+
+#send-btn.clicked {
+  animation: ripple 0.3s ease;
+}
+
+.input-wrap.shake {
+  animation: shake 0.4s ease;
+  border-color: #ef4444 !important;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.typing-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: typingDot 1.2s infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+/* Avatar picker */
+.avatar-picker {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 12px;
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 220px;
+  z-index: 100;
+  animation: fadeSlideIn 0.2s ease;
+}
+
+.avatar-picker.open { display: flex; }
+
+.avatar-option {
+  font-size: 22px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.avatar-option:hover { background: var(--glass-hover); }
+/* Command bar */
+.command-bar {
+  position: absolute;
+  bottom: 80px;
+  left: 20px;
+  right: 20px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 100;
+  animation: fadeSlideIn 0.2s ease;
+}
+
+.command-bar.open { display: flex; }
+
+.command-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.command-item:hover { background: var(--glass-hover); }
+
+.command-key {
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--accent2);
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.command-desc {
+  font-size: 12px;
+  color: var(--text2);
+}
   </style>
 </head>
 <body>
@@ -496,6 +623,7 @@
       </div>
       <div class="header-right">
         <button class="icon-btn" onclick="toggleTheme()" id="theme-btn">☀️</button>
+        <button class="icon-btn" onclick="toggleMute()" id="mute-btn">🔊</button>
         <button class="icon-btn" onclick="clearMemory()">🗑️</button>
       </div>
     </div>
@@ -521,7 +649,78 @@
       <div class="input-hint">Press Enter to send · Switch modes above</div>
     </div>
   </div>
-
+<div class="avatar-picker" id="avatar-picker">
+  <div class="avatar-option" onclick="setAvatar('👤')">👤</div>
+  <div class="avatar-option" onclick="setAvatar('😎')">😎</div>
+  <div class="avatar-option" onclick="setAvatar('🧑‍💻')">🧑‍💻</div>
+  <div class="avatar-option" onclick="setAvatar('⚡')">⚡</div>
+  <div class="avatar-option" onclick="setAvatar('🔥')">🔥</div>
+  <div class="avatar-option" onclick="setAvatar('🦊')">🦊</div>
+  <div class="avatar-option" onclick="setAvatar('🐺')">🐺</div>
+  <div class="avatar-option" onclick="setAvatar('🦅')">🦅</div>
+  <div class="avatar-option" onclick="setAvatar('🎯')">🎯</div>
+  <div class="avatar-option" onclick="setAvatar('💀')">💀</div>
+  <div class="avatar-option" onclick="setAvatar('🌙')">🌙</div>
+  <div class="avatar-option" onclick="setAvatar('👑')">👑</div>
+</div>
+<div class="command-bar" id="command-bar">
+  <div class="command-item" onclick="runCommand('general')">
+    <span class="command-key">/general</span>
+    <span class="command-desc">Switch to General mode</span>
+  </div>
+  <div class="command-item" onclick="runCommand('study')">
+    <span class="command-key">/study</span>
+    <span class="command-desc">Switch to Study mode</span>
+  </div>
+  <div class="command-item" onclick="runCommand('code')">
+    <span class="command-key">/code</span>
+    <span class="command-desc">Switch to Code mode</span>
+  </div>
+  <div class="command-item" onclick="runCommand('style')">
+    <span class="command-key">/style</span>
+    <span class="command-desc">Switch to Style mode</span>
+  </div>
+  <div class="command-item" onclick="runCommand('recipe')">
+    <span class="command-key">/recipe</span>
+    <span class="command-desc">Switch to Recipe mode</span>
+  </div>
+  <div class="command-item" onclick="runCommand('clear')">
+    <span class="command-key">/clear</span>
+    <span class="command-desc">Clear memory</span>
+  </div>
+  <div class="command-item" onclick="runCommand('time')">
+    <span class="command-key">/time</span>
+    <span class="command-desc">Ask current time</span>
+  </div>
+  <div class="command-item" onclick="runCommand('weather')">
+    <span class="command-key">/weather</span>
+    <span class="command-desc">Weather in Hyderabad</span>
+  </div>
+  <div class="command-item" onclick="runCommand('motivate')">
+    <span class="command-key">/motivate</span>
+    <span class="command-desc">Get motivated 💪</span>
+  </div>
+  <div class="command-item" onclick="runCommand('joke')">
+    <span class="command-key">/joke</span>
+    <span class="command-desc">Tell me a joke 😄</span>
+  </div>
+  <div class="command-item" onclick="runCommand('dbms')">
+    <span class="command-key">/dbms</span>
+    <span class="command-desc">Quick DBMS help</span>
+  </div>
+  <div class="command-item" onclick="runCommand('dsa')">
+    <span class="command-key">/dsa</span>
+    <span class="command-desc">Quick DSA topic</span>
+  </div>
+  <div class="command-item" onclick="runCommand('outfit')">
+    <span class="command-key">/outfit</span>
+    <span class="command-desc">Outfit suggestion 👔</span>
+  </div>
+  <div class="command-item" onclick="runCommand('help')">
+    <span class="command-key">/help</span>
+    <span class="command-desc">Show all commands</span>
+  </div>
+</div>
   <script>
     const conversationHistory = JSON.parse(localStorage.getItem('moonbyte-history')) || [];
     let chatSessions = JSON.parse(localStorage.getItem('moonbyte-sessions')) || [];
@@ -567,7 +766,8 @@ How to talk to him:
     }
 
     window.onload = () => {
-      const saved = localStorage.getItem('moonbyte-history');
+  initAvatar();
+  const saved = localStorage.getItem('moonbyte-history');
       if (saved) {
         const parsed = JSON.parse(saved);
         parsed.forEach(msg => {
@@ -617,10 +817,18 @@ How to talk to him:
       const input = document.getElementById("user-input");
       const btn = document.getElementById("send-btn");
       const userText = input.value.trim();
-      if (!userText) return;
+      if (!userText) {
+    const wrap = document.querySelector('.input-wrap');
+    wrap.classList.add('shake');
+    setTimeout(() => wrap.classList.remove('shake'), 400);
+    return;
+     }
 
       addMessage("user", userText);
       input.value = "";
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 300);
+      btn.disabled = true;
       btn.disabled = true;
 
       const mathRegex = /^[\d\s\+\-\*\/\(\)\.]+$/;
@@ -631,7 +839,8 @@ How to talk to him:
       }
 
       conversationHistory.push({ role: "user", content: processedText });
-      const thinkingDiv = addMessage("thinking", "Moonbyte is thinking...");
+      const thinkingDiv = addMessage("thinking", "");
+thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
 
       try {
         let reply = null;
@@ -651,9 +860,10 @@ How to talk to him:
         conversationHistory.push({ role: "assistant", content: reply || "Something went wrong." });
         localStorage.setItem('moonbyte-history', JSON.stringify(conversationHistory));
 
-        thinkingDiv.className = "message assistant";
-        thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(reply || "Something went wrong. Try again!")}</div></div>`;
-
+       thinkingDiv.className = "message assistant";
+const replyText = reply || "Something went wrong. Try again!";
+thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(replyText)}</div></div>`;
+speak(replyText);
       } catch (error) {
         thinkingDiv.className = "message assistant";
         thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">Something went wrong. Try again!</div></div>`;
@@ -675,7 +885,7 @@ How to talk to him:
       const div = document.createElement("div");
       div.className = `message ${role}`;
       if (role === "user") {
-        div.innerHTML = `<div class="msg-avatar user-av">👤</div><div class="msg-content"><div class="msg-bubble">${formatReply(text)}</div></div>`;
+        div.innerHTML = `<div class="msg-avatar user-av" onclick="toggleAvatarPicker()" style="cursor:pointer">${userAvatar}</div><div class="msg-content"><div class="msg-bubble">${formatReply(text)}</div></div>`;
       } else {
         div.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(text)}</div></div>`;
       }
@@ -735,6 +945,87 @@ How to talk to him:
       document.getElementById('sidebar').classList.remove('open');
       document.getElementById('overlay').classList.remove('open');
     }
+    // Avatar picker
+let userAvatar = localStorage.getItem('moonbyte-avatar') || '👤';
+
+function initAvatar() {
+  document.querySelectorAll('.user-av').forEach(el => {
+    el.textContent = userAvatar;
+  });
+}
+
+function toggleAvatarPicker() {
+  document.getElementById('avatar-picker').classList.toggle('open');
+}
+
+function setAvatar(emoji) {
+  userAvatar = emoji;
+  localStorage.setItem('moonbyte-avatar', emoji);
+  document.querySelectorAll('.user-av').forEach(el => {
+    el.textContent = emoji;
+  });
+  document.getElementById('avatar-picker').classList.remove('open');
+}
+
+// Close picker when clicking outside
+document.addEventListener('click', (e) => {
+  const picker = document.getElementById('avatar-picker');
+  if (!e.target.closest('.user-av') && !e.target.closest('.avatar-picker')) {
+    picker.classList.remove('open');
+  }
+});
+// Command bar
+// Text to speech
+let isMuted = false;
+
+function toggleMute() {
+  isMuted = !isMuted;
+  const btn = document.getElementById('mute-btn');
+  btn.textContent = isMuted ? '🔇' : '🔊';
+  if (isMuted) window.speechSynthesis.cancel();
+}
+
+function speak(text) {
+  if (isMuted) return;
+  window.speechSynthesis.cancel();
+  const clean = text.replace(/<[^>]*>/g, '').replace(/\*\*/g, '').replace(/\*/g, '');
+  const utterance = new SpeechSynthesisUtterance(clean);
+  utterance.lang = 'en-IN';
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  window.speechSynthesis.speak(utterance);
+}
+
+// Updated runCommand with new commands
+function runCommand(cmd) {
+  const bar = document.getElementById('command-bar');
+  bar.classList.remove('open');
+  document.getElementById('user-input').value = '';
+
+  const modeCommands = ['general', 'study', 'code', 'style', 'recipe'];
+
+  if (cmd === 'clear') {
+    clearMemory();
+  } else if (modeCommands.includes(cmd)) {
+    const btn = document.querySelector(`.mode-btn[onclick="switchMode('${cmd}', this)"]`);
+    if (btn) switchMode(cmd, btn);
+  } else {
+    const prompts = {
+      time: 'What is the current time?',
+      weather: 'What is the weather like in Hyderabad today?',
+      motivate: 'Give me a short motivational quote for a CSE student.',
+      joke: 'Tell me a funny short joke.',
+      dbms: 'Give me a quick important DBMS concept I should know.',
+      dsa: 'Give me a quick DSA topic or tip I should practice today.',
+      outfit: 'Suggest a quick outfit for a college student in Hyderabad.',
+      help: 'List all available commands in Moonbyte with what they do.',
+    };
+    if (prompts[cmd]) {
+      document.getElementById('user-input').value = prompts[cmd];
+      sendMessage();
+    }
+  }
+}
   </script>
 </body>
 </html>
