@@ -838,21 +838,23 @@ How to talk to him:
         processedText = `${userText} = ${result}`;
       }
 
-      conversationHistory.push({ role: "user", content: processedText });
-      const thinkingDiv = addMessage("thinking", "");
+     // Check if it's a search query
+const searchTriggers = ['search', 'find', 'look up', 'what is', 'who is', 'latest', 'news', 'current'];
+const isSearch = searchTriggers.some(trigger => userText.toLowerCase().startsWith(trigger));
+
+conversationHistory.push({ role: "user", content: processedText });
+const thinkingDiv = addMessage("thinking", "");
+thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
 thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
 
       try {
         let reply = null;
         try {
-          const groqResponse = await fetch("/.netlify/functions/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              messages: conversationHistory,
-              systemPrompt: systemPrompt + `\n\nCURRENT TIME RIGHT NOW: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}. When user asks for time or date, directly tell them this exact time.`
-            })
-          });
+         body: JSON.stringify({
+  messages: conversationHistory,
+  systemPrompt: systemPrompt + `\n\nCURRENT TIME RIGHT NOW: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}. When user asks for time or date, directly tell them this exact time.`,
+  searchQuery: isSearch ? userText : null
+})
           const groqData = await groqResponse.json();
           if (groqData.reply) reply = groqData.reply;
         } catch (e) { console.log("Groq failed 🔄"); }
@@ -990,9 +992,20 @@ function speak(text) {
   window.speechSynthesis.cancel();
   const clean = text.replace(/<[^>]*>/g, '').replace(/\*\*/g, '').replace(/\*/g, '');
   const utterance = new SpeechSynthesisUtterance(clean);
+  
+  // Pick best available voice
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => 
+    v.name.includes('Google') || 
+    v.name.includes('Natural') ||
+    v.name.includes('Neural') ||
+    v.lang === 'en-IN'
+  ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+  
+  if (preferred) utterance.voice = preferred;
   utterance.lang = 'en-IN';
-  utterance.rate = 1;
-  utterance.pitch = 1;
+  utterance.rate = 0.95;
+  utterance.pitch = 1.1;
   window.speechSynthesis.speak(utterance);
 }
 
