@@ -849,15 +849,19 @@ thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg
 
       try {
         let reply = null;
-        try {
-         body: JSON.stringify({
-  messages: conversationHistory,
-  systemPrompt: systemPrompt + `\n\nCURRENT TIME RIGHT NOW: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}. When user asks for time or date, directly tell them this exact time.`,
-  searchQuery: isSearch ? userText : null
-})
-          const groqData = await groqResponse.json();
-          if (groqData.reply) reply = groqData.reply;
-        } catch (e) { console.log("Groq failed 🔄"); }
+try {
+  const groqResponse = await fetch("/.netlify/functions/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages: conversationHistory,
+      systemPrompt: systemPrompt + `\n\nCURRENT TIME RIGHT NOW: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}. When user asks for time or date, directly tell them this exact time.`,
+      searchQuery: isSearch ? userText : null
+    })
+  });
+  const groqData = await groqResponse.json();
+  if (groqData.reply) reply = groqData.reply;
+} catch (e) { console.log("Groq failed 🔄", e); }
 
         conversationHistory.push({ role: "assistant", content: reply || "Something went wrong." });
         localStorage.setItem('moonbyte-history', JSON.stringify(conversationHistory));
