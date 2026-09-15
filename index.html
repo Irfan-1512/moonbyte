@@ -771,7 +771,8 @@ How to talk to him:
   const saved = localStorage.getItem('moonbyte-history');
       if (saved) {
         const parsed = JSON.parse(saved);
-        parsed.forEach(msg => {
+        const recent = parsed.slice(-30);
+        recent.forEach(msg => {
           conversationHistory.push(msg);
           addMessage(msg.role === "user" ? "user" : "assistant", msg.content);
         });
@@ -865,6 +866,7 @@ try {
 } catch (e) { console.log("Groq failed 🔄", e); }
 
         conversationHistory.push({ role: "assistant", content: reply || "Something went wrong." });
+        if (conversationHistory.length > 100) conversationHistory.splice(0, conversationHistory.length - 100);
         localStorage.setItem('moonbyte-history', JSON.stringify(conversationHistory));
 
        thinkingDiv.className = "message assistant";
