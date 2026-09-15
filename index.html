@@ -795,7 +795,13 @@ How to talk to him:
       renderChatHistory();
     };
 
-    function switchMode(mode, btn) {
+      function switchMode(mode, btn) {
+      if (conversationHistory.length > 0) {
+        const firstMsg = conversationHistory.find(m => m.role === 'user');
+        const title = firstMsg ? firstMsg.content.slice(0, 30) + '...' : 'Conversation';
+        chatSessions.push({ title, time: Date.now(), messages: [...conversationHistory] });
+        localStorage.setItem('moonbyte-sessions', JSON.stringify(chatSessions));
+      }
       currentMode = mode;
       systemPrompt = modes[mode];
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -811,6 +817,8 @@ How to talk to him:
       };
       addMessage("assistant", welcomes[mode]);
       conversationHistory.length = 0;
+      localStorage.removeItem('moonbyte-history');
+      renderChatHistory();
     }
 
     function clearMemory() {
