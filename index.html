@@ -1037,12 +1037,27 @@ function runCommand(cmd) {
       outfit: 'Suggest a quick outfit for a college student in Hyderabad.',
       help: 'List all available commands in Moonbyte with what they do.',
     };
-    if (prompts[cmd]) {
+       if (prompts[cmd]) {
       document.getElementById('user-input').value = prompts[cmd];
       sendMessage();
     }
   }
 }
+
+// Auto-focus the chat input when the user starts typing anywhere on the page
+document.addEventListener('keydown', function(e) {
+  const active = document.activeElement;
+  const isTypingElsewhere = active && (
+    active.tagName === 'INPUT' ||
+    active.tagName === 'TEXTAREA' ||
+    active.isContentEditable
+  );
+  const ignoredKeys = ['Tab', 'Shift', 'Control', 'Alt', 'Meta', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+
+  if (!isTypingElsewhere && !ignoredKeys.includes(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const input = document.getElementById('user-input');
+    if (input) input.focus();
+  }
+});
   </script>
-</body>
 </html>
