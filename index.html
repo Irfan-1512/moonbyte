@@ -855,7 +855,7 @@ try {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      messages: conversationHistory,
+      messages: conversationHistory.slice(-10),
       systemPrompt: systemPrompt + `\n\nCURRENT TIME RIGHT NOW: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}. When user asks for time or date, directly tell them this exact time.`,
       searchQuery: isSearch ? userText : null
     })
