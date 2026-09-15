@@ -329,7 +329,8 @@
     }
 
     .msg-content { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-
+    .msg-time { font-size: 11px; opacity: 0.5; padding: 0 4px; }
+    .message.user .msg-time { text-align: right; }
     .msg-bubble {
       padding: 12px 16px;
       border-radius: 16px;
@@ -887,18 +888,18 @@ speak(replyText);
     }
 
     function addMessage(role, text) {
-      const box = document.getElementById("chat-box");
-      const div = document.createElement("div");
-      div.className = `message ${role}`;
-      if (role === "user") {
-        div.innerHTML = `<div class="msg-avatar user-av" onclick="toggleAvatarPicker()" style="cursor:pointer">${userAvatar}</div><div class="msg-content"><div class="msg-bubble">${formatReply(text)}</div></div>`;
-      } else {
-        div.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(text)}</div></div>`;
-      }
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-      return div;
-    }
+  const box = document.getElementById("chat-box");
+  const div = document.createElement("div");
+  div.className = `message ${role}`;
+  const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  if (role === "user") {
+    div.innerHTML = `<div class="msg-avatar user-av" onclick="toggleAvatarPicker()" style="cursor:pointer">${userAvatar}</div><div class="msg-content"><div class="msg-bubble">${formatReply(text)}</div><div class="msg-time">${timeStr}</div></div>`;
+  } else {
+    div.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(text)}</div><div class="msg-time">${timeStr}</div></div>`;
+  }
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
 
     document.getElementById("user-input").addEventListener("keydown", (e) => {
       if (e.key === "Enter") sendMessage();
