@@ -840,7 +840,8 @@ How to talk to him:
 
      // Check if it's a search query
 const searchTriggers = ['search', 'find', 'look up', 'what is', 'who is', 'latest', 'news', 'current'];
-const isSearch = searchTriggers.some(trigger => userText.toLowerCase().includes(trigger));
+const isSearch = searchTriggers.some(trigger => userText.toLowerCase().startsWith(trigger));
+
 conversationHistory.push({ role: "user", content: processedText });
 const thinkingDiv = addMessage("thinking", "");
 thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
