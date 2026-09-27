@@ -904,6 +904,7 @@ if (currentMode === "ppt" && reply) {
     thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">✅ Your presentation "${data.title}" is ready! Downloading now...</div></div>`;
   } catch (e) {
     console.log("PPT parse failed", e);
+    console.log("Raw reply was:", reply);
     thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">Couldn't build the slides from that reply — try rephrasing your topic.</div></div>`;
   }
 } else {
