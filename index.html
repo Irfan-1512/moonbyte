@@ -586,6 +586,7 @@
   color: var(--text2);
 }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PptxGenJS/3.12.0/pptxgen.bundle.js"></script>
 </head>
 <body>
 
@@ -635,6 +636,7 @@
       <button class="mode-btn" onclick="switchMode('code', this)">💻 Code</button>
       <button class="mode-btn" onclick="switchMode('style', this)">👔 Style</button>
       <button class="mode-btn" onclick="switchMode('recipe', this)">🍳 Recipe</button>
+      <button class="mode-btn" onclick="switchMode('ppt', this)">📊 PPT</button>
     </div>
 
     <div id="chat-box"></div>
@@ -749,9 +751,11 @@ How to talk to him:
       study: `You are Moonbyte in Study Mode helping Irfan. He's a CSE student studying DBMS, OS, DSA, Java, web development. Explain simply like a friend who's good at studies. Keep it easy to understand, give examples, motivate him when needed. No robotic explanations.`,
       code: `You are Moonbyte in Code Mode. Help Irfan with code like a senior developer friend. He knows HTML, CSS, JavaScript and is learning more. Be direct, explain clearly, fix his bugs, suggest improvements. Talk casually.`,
       style: `You are Moonbyte in Style Mode. You are Irfan's personal fashion advisor and friend. He's into men's fashion and style. Give practical outfit advice for a college student in Hyderabad. Be real and casual about it.`,
-      recipe: `You are Moonbyte in Recipe Mode. Help Irfan with cooking like a foodie friend. He loves biryani and pizza. Suggest simple practical recipes. Keep it fun and casual.`
-    };
-
+      recipe: `You are Moonbyte in Recipe Mode. Help Irfan with cooking like a foodie friend. He loves biryani and pizza. Suggest simple practical recipes. Keep it fun and casual.`,
+      ppt: `You are Moonbyte in Presentation Mode. Irfan will describe a topic and how many slides he wants. Respond ONLY with valid JSON, no other text, no markdown code fences, in this exact structure:
+      {"title": "Presentation Title", "slides": [{"heading": "Slide Heading", "bullets": ["point 1", "point 2", "point 3"]}]}
+      Keep each bullet short (under 15 words). Match the number of slides Irfan asks for (default to 5 if he doesn't say). Do not include anything outside the JSON object.`
+};
     let currentMode = "general";
     let systemPrompt = modes.general;
 
@@ -813,7 +817,8 @@ How to talk to him:
         study: "📚 Study Mode ON! What subject are we tackling today Irfan?",
         code: "💻 Code Mode ON! Share your code or tell me what you're building Irfan!",
         style: "👔 Style Mode ON! Let's talk fashion Irfan. What's the occasion?",
-        recipe: "🍳 Recipe Mode ON! Hungry Irfan? Tell me what ingredients you have!"
+        recipe: "🍳 Recipe Mode ON! Hungry Irfan? Tell me what ingredients you have!",
+        ppt: "📊 Presentation Mode ON! Tell me the topic and how many slides you want, Irfan!"
       };
       addMessage("assistant", welcomes[mode]);
       conversationHistory.length = 0;
@@ -889,10 +894,23 @@ try {
         if (conversationHistory.length > 100) conversationHistory.splice(0, conversationHistory.length - 100);
         localStorage.setItem('moonbyte-history', JSON.stringify(conversationHistory));
 
-       thinkingDiv.className = "message assistant";
+              thinkingDiv.className = "message assistant";
+
+if (currentMode === "ppt" && reply) {
+  try {
+    const cleaned = reply.replace(/```json|```/g, '').trim();
+    const data = JSON.parse(cleaned);
+    generatePPTX(data);
+    thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">✅ Your presentation "${data.title}" is ready! Downloading now...</div></div>`;
+  } catch (e) {
+    console.log("PPT parse failed", e);
+    thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">Couldn't build the slides from that reply — try rephrasing your topic.</div></div>`;
+  }
+} else {
 const replyText = reply || "Something went wrong. Try again!";
 thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(replyText)}</div></div>`;
 speak(replyText);
+}
       } catch (error) {
         thinkingDiv.className = "message assistant";
         thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">Something went wrong. Try again!</div></div>`;
@@ -908,7 +926,27 @@ speak(replyText);
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/\n/g, '<br>');
     }
+    function generatePPTX(data) {
+  const pptx = new PptxGenJS();
+  pptx.defineLayout({ name: 'MOON', width: 10, height: 5.63 });
+  pptx.layout = 'MOON';
 
+  const titleSlide = pptx.addSlide();
+  titleSlide.background = { color: '1a1a2e' };
+  titleSlide.addText(data.title || 'Presentation', {
+    x: 0.5, y: 2, w: 9, h: 1.5, fontSize: 36, bold: true, color: 'FFFFFF', align: 'center'
+  });
+
+  (data.slides || []).forEach(slide => {
+    const s = pptx.addSlide();
+    s.background = { color: 'FFFFFF' };
+    s.addText(slide.heading || '', { x: 0.5, y: 0.4, w: 9, h: 0.8, fontSize: 28, bold: true, color: '1a1a2e' });
+    const bulletText = (slide.bullets || []).map(b => ({ text: b, options: { bullet: true, breakLine: true } }));
+    s.addText(bulletText, { x: 0.7, y: 1.4, w: 8.5, h: 3.8, fontSize: 18, color: '333333' });
+  });
+
+  pptx.writeFile({ fileName: (data.title || 'Moonbyte-Presentation').replace(/[^a-z0-9]/gi, '_') + '.pptx' });
+}
     function addMessage(role, text) {
   const box = document.getElementById("chat-box");
   const div = document.createElement("div");
@@ -1043,7 +1081,7 @@ function runCommand(cmd) {
   bar.classList.remove('open');
   document.getElementById('user-input').value = '';
 
-  const modeCommands = ['general', 'study', 'code', 'style', 'recipe'];
+  const modeCommands = ['general', 'study', 'code', 'style', 'recipe', 'ppt'];
 
   if (cmd === 'clear') {
     clearMemory();
