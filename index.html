@@ -898,7 +898,9 @@ try {
 
 if (currentMode === "ppt" && reply) {
   try {
-    const cleaned = reply.replace(/```json|```/g, '').trim();
+    const jsonMatch = reply.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON object found in reply");
+    const cleaned = jsonMatch[0];
     const data = JSON.parse(cleaned);
     generatePPTX(data);
     thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">✅ Your presentation "${data.title}" is ready! Downloading now...</div></div>`;
