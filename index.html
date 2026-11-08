@@ -32,13 +32,24 @@
 </div>
 
 <!-- ===== Wardrobe window ===== -->
-<div id="wardrobe-modal" class="wardrobe-modal" role="dialog" aria-modal="true" aria-labelledby="wardrobe-heading">
-  <div class="wardrobe-panel">
-    <div class="wardrobe-head">
+<div id="wardrobe-modal" class="sheet" role="dialog" aria-modal="true" aria-labelledby="wardrobe-heading">
+  <div class="sheet-panel">
+    <div class="sheet-head">
       <h2 id="wardrobe-heading">👗 My Wardrobe</h2>
       <button id="wardrobe-close" class="icon-btn" onclick="closeWardrobe()" aria-label="Close wardrobe">✕</button>
     </div>
     <div id="wardrobe-list"></div>
+  </div>
+</div>
+
+<!-- ===== Cook book window ===== -->
+<div id="cookbook-modal" class="sheet" role="dialog" aria-modal="true" aria-labelledby="cookbook-heading">
+  <div class="sheet-panel">
+    <div class="sheet-head">
+      <h2 id="cookbook-heading">📖 My Cook Book</h2>
+      <button id="cookbook-close" class="icon-btn" onclick="closeCookbook()" aria-label="Close cook book">✕</button>
+    </div>
+    <div id="cookbook-list"></div>
   </div>
 </div>
 
@@ -53,6 +64,7 @@
     <div class="sidebar-section">
       <button class="new-chat-btn" onclick="clearMemory()">✚ New Chat</button>
       <button class="new-chat-btn" onclick="openWardrobe()">👗 My Wardrobe</button>
+      <button class="new-chat-btn" onclick="openCookbook()">📖 My Cook Book</button>
       <div class="sidebar-label">Recent</div>
       <div id="chat-history"></div>
     </div>
@@ -182,8 +194,12 @@
 
 <!-- ===== Scripts (order matters) ===== -->
 <script src="js/config.js"></script>
+<script src="js/common.js"></script>
 <script src="js/app.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/wardrobe.js"></script>
+<script src="js/recipe.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/ui.js"></script>
 </body>
 </html>

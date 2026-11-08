@@ -1,4 +1,4 @@
-    :root[data-theme="dark"] {
+:root[data-theme="dark"] {
       --bg: #080809;
       --glass: rgba(255,255,255,0.04);
       --glass-border: rgba(255,255,255,0.08);
@@ -685,8 +685,8 @@
 .outfit-btn:disabled { opacity: 0.6; cursor: default; }
 .outfit-btn.danger { color: #e5484d; }
 
-/* ---- Wardrobe window ---- */
-.wardrobe-modal {
+/* ---- Pop-up windows (wardrobe, cook book) ---- */
+.sheet {
   display: none;
   position: fixed;
   inset: 0;
@@ -696,10 +696,10 @@
   padding: 16px;
   background: rgba(0, 0, 0, 0.6);
 }
-.wardrobe-panel {
+.sheet-panel {
   width: 100%;
-  max-width: 560px;
-  max-height: 85vh;
+  max-width: 600px;
+  max-height: 88vh;
   overflow-y: auto;
   padding: 20px;
   background: var(--bg);
@@ -707,5 +707,80 @@
   border-radius: 20px;
   color: var(--text);
 }
-.wardrobe-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.wardrobe-empty { color: var(--text2); font-size: 14px; padding: 12px 0; }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.sheet-empty { color: var(--text2); font-size: 14px; padding: 12px 0; }
+
+/* ---- Recipe cards ---- */
+.recipe-card {
+  margin-top: 10px;
+  padding: 16px;
+  max-width: 580px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  color: var(--text);
+}
+.recipe-photo {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.recipe-photo[hidden], .photo-credit[hidden] { display: none; }
+.photo-credit { font-size: 12px; color: var(--text2); margin: 4px 0 8px; }
+.recipe-title { font-size: 18px; font-weight: 700; margin-top: 6px; }
+.recipe-sub { font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+.ing-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 8px 0 14px; }
+.ing-list label { display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; }
+.ing-list input, .diet input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; }
+.step-list { display: flex; flex-direction: column; gap: 12px; margin: 0 0 14px 20px; font-size: 15px; line-height: 1.5; }
+.timer { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.timer-time { font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--accent2); min-width: 52px; }
+.timer.done .timer-time { color: #4ade80; }
+.mini-btn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-hover);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.mini-btn:hover { border-color: var(--accent); }
+.diet-row { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0; }
+.diet { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+.diet-warn { font-size: 13px; color: var(--text2); min-height: 18px; margin: 4px 0 10px; }
+.diet-warn:empty { display: none; }
+.recipe-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---- Quick-start chips under the welcome message ---- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px 48px; }
+.chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+.chip:hover { border-color: var(--accent); background: var(--glass-hover); }
+
+/* ---- Each page (mode) gets its own accent colour ---- */
+body[data-mode="study"]  { --accent: #6aa8ff; --accent-glow: rgba(106, 168, 255, 0.22); }
+body[data-mode="code"]   { --accent: #4ade80; --accent-glow: rgba(74, 222, 128, 0.2); }
+body[data-mode="style"]  { --accent: #e8b86a; --accent-glow: rgba(232, 184, 106, 0.22); }
+body[data-mode="recipe"] { --accent: #ff8a5c; --accent-glow: rgba(255, 138, 92, 0.22); }
+body[data-mode="ppt"]    { --accent: #a78bfa; --accent-glow: rgba(167, 139, 250, 0.22); }
+
+/* ---- Item pictures on outfit cards ---- */
+.item-img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  flex-shrink: 0;
+}

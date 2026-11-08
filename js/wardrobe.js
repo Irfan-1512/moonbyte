@@ -2,12 +2,6 @@
 let shownOutfits = [];
 const HEX = /^#[0-9a-f]{6}$/i;
 
-function escHtml(s) {
-  return String(s ?? '').replace(/[&<>"']/g, (c) => (
-    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-  ));
-}
-
 // savedId is set when the card is shown inside the wardrobe window
 function outfitHtml(o, idx, savedId) {
   const items = (Array.isArray(o.items) ? o.items : [])
@@ -16,7 +10,10 @@ function outfitHtml(o, idx, savedId) {
       const dot = HEX.test(it.hex)
         ? `<span class="swatch" style="background:${it.hex}" aria-hidden="true"></span>` : '';
       const color = it.color ? ' · ' + escHtml(it.color) : '';
-      return `<li>${dot}<span><strong>${escHtml(it.name)}</strong>${color}</span></li>`;
+      const wiki = typeof it.wiki === 'string' ? it.wiki.trim() : '';
+      const pic = WIKI_TITLE.test(wiki)
+        ? `<img class="item-img" data-wiki="${escHtml(wiki)}" alt="" width="56" height="56" hidden>` : '';
+      return `<li>${pic}${dot}<span><strong>${escHtml(it.name)}</strong>${color}</span></li>`;
     }).join('');
   const action = savedId
     ? `<button class="outfit-btn danger" onclick="deleteOutfit('${escHtml(savedId)}')">Remove</button>`
@@ -30,20 +27,16 @@ function outfitHtml(o, idx, savedId) {
   </div>`;
 }
 
-// Returns true if the reply was valid style JSON and cards were drawn
+// Returns true if the reply was handled (cards drawn, or a friendly error shown)
 function showStyleReply(div, reply) {
-  let data = null;
-  try {
-    const m = reply.match(/\{[\s\S]*\}/);
-    data = m ? JSON.parse(m[0]) : null;
-  } catch { data = null; }
-  if (!data || typeof data !== 'object') return false;
+  const data = parseJsonReply(reply);
+  if (!data) return looksLikeJson(reply) ? showFormatFailure(div) : false;
 
   const outfits = (Array.isArray(data.outfits) ? data.outfits : [])
     .filter((o) => o && typeof o === 'object')
     .slice(0, 3);
   const message = typeof data.message === 'string' ? data.message : '';
-  if (!message && !outfits.length) return false;
+  if (!message && !outfits.length) return showFormatFailure(div);
 
   const start = shownOutfits.length;
   shownOutfits.push(...outfits);
@@ -52,12 +45,8 @@ function showStyleReply(div, reply) {
     + outfits.map((o, i) => outfitHtml(o, start + i)).join('')
     + '</div>';
 
-  // Keep the saved chat history readable instead of raw JSON
-  const last = conversationHistory[conversationHistory.length - 1];
-  if (last && last.role === 'assistant') {
-    last.content = [message, ...outfits.map((o) => 'Outfit: ' + o.title)].filter(Boolean).join('\n');
-    localStorage.setItem('moonbyte-history', JSON.stringify(conversationHistory));
-  }
+  replaceLastAssistant([message, ...outfits.map((o) => 'Outfit: ' + o.title)].filter(Boolean).join('\n'));
+  loadImages(div);
   if (message) speak(message);
   return true;
 }
@@ -94,8 +83,9 @@ async function openWardrobe() {
     return;
   }
   list.innerHTML = data.length
-    ? data.map((row) => outfitHtml(row.outfit, -1, row.id)).join('')
-    : '<p class="wardrobe-empty">Nothing saved yet. Ask for an outfit in Style mode and tap “Add to my wardrobe”.</p>';
+    ? data.map((row) => outfitHtml(row.outfit || {}, -1, row.id)).join('')
+    : '<p class="sheet-empty">Nothing saved yet. Ask for an outfit in Style mode and tap “Add to my wardrobe”.</p>';
+  loadImages(list);
   document.getElementById('wardrobe-close').focus();
 }
 

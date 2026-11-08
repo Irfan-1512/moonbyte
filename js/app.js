@@ -1,4 +1,4 @@
-    const conversationHistory = JSON.parse(localStorage.getItem('moonbyte-history')) || [];
+const conversationHistory = JSON.parse(localStorage.getItem('moonbyte-history')) || [];
     let chatSessions = JSON.parse(localStorage.getItem('moonbyte-sessions')) || [];
 
     const modes = {
@@ -25,9 +25,12 @@ How to talk to him:
       code: `You are Moonbyte in Code Mode. Help Irfan with code like a senior developer friend. He knows HTML, CSS, JavaScript and is learning more. Be direct, explain clearly, fix his bugs, suggest improvements. Talk casually.`,
       style: `You are Moonbyte in Style Mode, Irfan's personal fashion advisor and friend. He likes men's fashion and is a college student in Hyderabad (warm weather, practical budget). Be casual and real.
 Respond ONLY with valid JSON, no text outside it, in this exact shape:
-{"message": "short friendly reply, 1-3 sentences", "outfits": [{"title": "Outfit name", "occasion": "where to wear it", "items": [{"name": "Navy linen shirt", "color": "navy", "hex": "#1f2a44"}], "tip": "one short styling tip"}]}
-When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each. For a general fashion question, answer in "message" and use an empty "outfits" list. Every hex must be a 6-digit value like #1f2a44.`,
-      recipe: `You are Moonbyte in Recipe Mode. Help Irfan with cooking like a foodie friend. He loves biryani and pizza. Suggest simple practical recipes. Keep it fun and casual.`,
+{"message": "short friendly reply, 1-3 sentences", "outfits": [{"title": "Outfit name", "occasion": "where to wear it", "items": [{"name": "Navy linen shirt", "color": "navy", "hex": "#1f2a44", "wiki": "Dress shirt"}], "tip": "one short styling tip"}]}
+When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each. For a general fashion question, answer in "message" and use an empty "outfits" list. Every hex must be a 6-digit value like #1f2a44. "wiki" is the English Wikipedia article title for that kind of garment, kept generic (examples: T-shirt, Blazer, Jeans, Chino cloth, Loafer, Sneakers, Necklace).`,
+      recipe: `You are Moonbyte in Recipe Mode, Irfan's foodie friend. He loves biryani and pizza. Keep it fun, casual and practical.
+Respond ONLY with valid JSON, no text outside it, in this exact shape:
+{"message": "short friendly reply, 1-2 sentences", "recipe": {"title": "Butter chicken", "wiki": "Butter chicken", "servings": 4, "ingredients": [{"amount": "500 g", "item": "chicken thighs, boneless", "flags": ["meat"]}], "steps": [{"text": "Marinate the chicken for 30 minutes.", "minutes": 30}]}}
+When he asks for a recipe, fill "recipe" (at most 12 ingredients and 8 short steps). For anything else (substitutes, tips, questions) answer in "message" and set "recipe" to null. "wiki" is the English Wikipedia article title of the dish. "flags" lists any of meat, nuts, dairy, gluten that the ingredient contains (use [] if none; fish counts as meat). "minutes" is only for steps with a set waiting or cooking time.`,
       ppt: `You are Moonbyte in Presentation Mode. Irfan will describe a topic and how many slides he wants. Respond ONLY with valid JSON, no other text, no markdown code fences, in this exact structure:
       {"title": "Presentation Title", "slides": [{"heading": "Slide Heading", "bullets": ["point 1", "point 2", "point 3"]}]}
       Keep each bullet short (under 15 words). Match the number of slides Irfan asks for (default to 5 if he doesn't say). Do not include anything outside the JSON object.`
@@ -36,6 +39,7 @@ When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each
     let systemPrompt = modes.general;
 
         function renderChatHistory() {
+      if (typeof signedIn !== 'undefined' && signedIn && typeof refreshChatList === 'function') { refreshChatList(); return; }
       const container = document.getElementById('chat-history');
       container.innerHTML = '';
       chatSessions.slice(-8).reverse().forEach((session, i) => {
@@ -72,6 +76,7 @@ When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each
       } else {
         addMessage("assistant", "Hey Irfan! 🌙 Moonbyte is online. What can I help you with today?");
       }
+      if (typeof modeUi === 'function') modeUi('general', !saved);
       renderChatHistory();
     };
 
@@ -82,6 +87,7 @@ When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each
         chatSessions.push({ title, time: Date.now(), messages: [...conversationHistory] });
         localStorage.setItem('moonbyte-sessions', JSON.stringify(chatSessions));
       }
+      if (typeof newCloudChat === 'function') newCloudChat();
       currentMode = mode;
       systemPrompt = modes[mode];
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -97,6 +103,7 @@ When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each
         ppt: "📊 Presentation Mode ON! Tell me the topic and how many slides you want, Irfan!"
       };
       addMessage("assistant", welcomes[mode]);
+      if (typeof modeUi === 'function') modeUi(mode);
       conversationHistory.length = 0;
       localStorage.removeItem('moonbyte-history');
       renderChatHistory();
@@ -114,6 +121,8 @@ When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each
       conversationHistory.length = 0;
       document.getElementById('chat-box').innerHTML = '';
       addMessage("assistant", "Memory cleared! Fresh start Irfan. 🌙");
+      if (typeof newCloudChat === 'function') newCloudChat();
+      if (typeof modeUi === 'function') modeUi(currentMode);
     }
 
     async function sendMessage() {
@@ -128,6 +137,7 @@ When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each
      }
 
       addMessage("user", userText);
+      document.querySelectorAll('.chips').forEach((c) => c.remove());
       input.value = "";
       btn.classList.add('clicked');
       setTimeout(() => btn.classList.remove('clicked'), 300);
@@ -143,7 +153,7 @@ When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each
 
      // Check if it's a search query
 const searchTriggers = ['search', 'find', 'look up', 'what is', 'who is', 'latest', 'news', 'current'];
-const isSearch = searchTriggers.some(trigger => userText.toLowerCase().startsWith(trigger));
+const isSearch = currentMode === 'general' && searchTriggers.some(trigger => userText.toLowerCase().startsWith(trigger));
 
 conversationHistory.push({ role: "user", content: processedText });
 const thinkingDiv = addMessage("thinking", "");
@@ -174,6 +184,8 @@ try {
 
 if (currentMode === "style" && reply && showStyleReply(thinkingDiv, reply)) {
   // outfit cards were drawn by showStyleReply (js/wardrobe.js)
+} else if (currentMode === "recipe" && reply && showRecipeReply(thinkingDiv, reply)) {
+  // recipe card was drawn by showRecipeReply (js/recipe.js)
 } else if (currentMode === "ppt" && reply) {
   try {
     const jsonMatch = reply.match(/\{[\s\S]*\}/);
@@ -192,6 +204,7 @@ const replyText = reply || "Something went wrong. Try again!";
 thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(replyText)}</div></div>`;
 speak(replyText);
 }
+if (reply && typeof syncExchange === 'function') syncExchange();
       } catch (error) {
         thinkingDiv.className = "message assistant";
         thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">Something went wrong. Try again!</div></div>`;

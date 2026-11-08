@@ -16,6 +16,20 @@ function showAuth(show, note = '') {
   if (show) document.getElementById('auth-email').focus();
 }
 
+// Turns Supabase's technical messages into something you can act on
+function friendlyAuthError(err) {
+  const msg = String((err && err.message) || '');
+  if ((err && err.status === 429) || /rate limit/i.test(msg)) {
+    return 'Too many emails were sent. Wait a while, or turn off "Confirm email" in Supabase.';
+  }
+  if (/not confirmed/i.test(msg)) return 'Please confirm your email first (check your inbox).';
+  if (/invalid login credentials/i.test(msg)) return 'Wrong email or password.';
+  if (/already registered/i.test(msg)) return 'That email already has an account. Try logging in.';
+  if (/invalid api key|apikey/i.test(msg)) return 'The Supabase key in js/config.js looks wrong.';
+  if (/failed to fetch|network/i.test(msg)) return 'Could not reach Supabase. Check your internet and js/config.js.';
+  return msg || 'Something went wrong. Try again.';
+}
+
 function setAuthError(msg) {
   document.getElementById('auth-error').textContent = msg;
 }
@@ -55,14 +69,17 @@ async function submitAuth() {
       if (error) throw error;
     }
   } catch (err) {
-    setAuthError(err.message || 'Something went wrong. Try again.');
+    console.log('Auth error', err);
+    setAuthError(friendlyAuthError(err));
   } finally {
     btn.disabled = false;
   }
 }
 
 async function logout() {
-  if (sb) await sb.auth.signOut();
+  if (!sb) return;
+  await sb.auth.signOut();
+  if (typeof resetChatView === 'function') resetChatView();
 }
 
 function accountClick() {
@@ -90,5 +107,6 @@ if (sb) {
     btn.textContent = signedIn ? '🚪' : '🔐';
     btn.title = label;
     btn.setAttribute('aria-label', label);
+    if (typeof syncAuthChanged === 'function') syncAuthChanged(session);
   });
 }
