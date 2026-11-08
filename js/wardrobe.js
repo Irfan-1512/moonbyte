@@ -94,6 +94,7 @@ function closeWardrobe() {
 }
 
 async function deleteOutfit(id) {
+  if (!confirm('Remove this outfit permanently?')) return;
   const { error } = await sb.from('wardrobe').delete().eq('id', id);
   if (error) return console.log('Remove failed', error);
   openWardrobe();

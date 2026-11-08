@@ -83,3 +83,34 @@ function loadImages(root) {
     }
   });
 }
+
+// ---- Sidebar chat items with a permanent-delete button ----
+function chatItemLabel(text) {
+  const span = document.createElement('span');
+  span.className = 'chat-title';
+  span.textContent = text;
+  return span;
+}
+
+function chatDeleteButton(onDelete) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'chat-del';
+  btn.textContent = '🗑';
+  btn.title = 'Delete permanently';
+  btn.setAttribute('aria-label', 'Delete this chat permanently');
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    if (confirm('Delete this chat permanently? This cannot be undone.')) onDelete();
+  };
+  return btn;
+}
+
+// Empties the screen and the saved copy in this browser, then shows a fresh start message
+function showFreshChat(text) {
+  conversationHistory.length = 0;
+  localStorage.removeItem('moonbyte-history');
+  document.getElementById('chat-box').innerHTML = '';
+  addMessage('assistant', text);
+  if (typeof modeUi === 'function') modeUi(currentMode);
+}

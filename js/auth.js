@@ -1,11 +1,19 @@
 // Optional login with Supabase. Moonbyte works fine without logging in.
 let sb = null;
+let sbProblem = '';
 let signedIn = false;
 let authMode = 'login';
 
 try {
+  if (/PASTE_/.test(SUPABASE_URL + SUPABASE_KEY)) {
+    throw new Error('js/config.js still has the PASTE_ placeholders');
+  }
+  if (typeof supabase === 'undefined') {
+    throw new Error('the Supabase library did not load (check your internet)');
+  }
   sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 } catch (err) {
+  sbProblem = err.message;
   console.log('Supabase is not set up. Check js/config.js', err);
 }
 
@@ -47,7 +55,7 @@ function toggleAuthMode(e) {
 }
 
 async function submitAuth() {
-  if (!sb) return setAuthError('Login is not set up yet.');
+  if (!sb) return setAuthError('Login is not set up: ' + sbProblem + '.');
   const email = document.getElementById('auth-email').value.trim().toLowerCase();
   const password = document.getElementById('auth-password').value;
   const btn = document.getElementById('auth-submit');

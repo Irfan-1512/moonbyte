@@ -45,14 +45,43 @@ When he asks for a recipe, fill "recipe" (at most 12 ingredients and 8 short ste
       chatSessions.slice(-8).reverse().forEach((session, i) => {
         const div = document.createElement('div');
         div.className = 'chat-history-item' + (i === 0 ? ' active' : '');
-        div.textContent = session.title || 'Conversation';
         div.style.cursor = 'pointer';
         div.onclick = () => loadSession(session);
+        div.appendChild(chatItemLabel(session.title || 'Conversation'));
+        div.appendChild(chatDeleteButton(() => deleteLocalChat(session)));
         container.appendChild(div);
       });
     }
 
+    let openedSession = null;
+
+    // Permanently removes a chat saved in this browser
+    function deleteLocalChat(session) {
+      const i = chatSessions.indexOf(session);
+      if (i === -1) return;
+      chatSessions.splice(i, 1);
+      localStorage.setItem('moonbyte-sessions', JSON.stringify(chatSessions));
+      if (openedSession === session) {
+        openedSession = null;
+        showFreshChat('Chat deleted. 🌙');
+      }
+      renderChatHistory();
+    }
+
+    // Header 🗑️: permanently deletes the chat that is open right now
+    async function deleteCurrentChat() {
+      if (!confirm('Delete this chat permanently? This cannot be undone.')) return;
+      if (typeof signedIn !== 'undefined' && signedIn && typeof currentChatId !== 'undefined' && currentChatId) {
+        await deleteCloudChat(currentChatId);   // removes it from your account and clears the screen
+        return;
+      }
+      if (openedSession) { deleteLocalChat(openedSession); return; }   // opened from the sidebar
+      showFreshChat('Chat deleted. 🌙');                               // never saved anywhere else
+      if (typeof newCloudChat === 'function') newCloudChat();
+    }
+
     function loadSession(session) {
+      openedSession = session;
       document.getElementById('chat-box').innerHTML = '';
       conversationHistory.length = 0;
       (session.messages || []).forEach(msg => {

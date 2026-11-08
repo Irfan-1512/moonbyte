@@ -228,6 +228,7 @@ function closeCookbook() {
 }
 
 async function deleteRecipe(id) {
+  if (!confirm('Remove this recipe permanently?')) return;
   const { error } = await sb.from('cookbook').delete().eq('id', id);
   if (error) return console.log('Remove failed', error);
   openCookbook();

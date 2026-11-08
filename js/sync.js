@@ -46,16 +46,29 @@ async function refreshChatList() {
     data.forEach((c) => {
       const item = document.createElement('div');
       item.className = 'chat-history-item' + (c.id === currentChatId ? ' active' : '');
-      item.textContent = c.title || 'Conversation';
       item.setAttribute('role', 'button');
       item.tabIndex = 0;
       item.onclick = () => openCloudChat(c.id, c.mode);
-      item.onkeydown = (e) => { if (e.key === 'Enter') openCloudChat(c.id, c.mode); };
+      item.onkeydown = (e) => { if (e.key === 'Enter' && e.target === item) openCloudChat(c.id, c.mode); };
+      item.appendChild(chatItemLabel(c.title || 'Conversation'));
+      item.appendChild(chatDeleteButton(() => deleteCloudChat(c.id)));
       box.appendChild(item);
     });
   } catch (err) {
     console.log('Chat list failed', err);
   }
+}
+
+// Permanently deletes a saved chat from your account (its messages go with it)
+async function deleteCloudChat(id) {
+  if (!signedIn || !sb) return;
+  const { error } = await sb.from('chats').delete().eq('id', id);
+  if (error) { console.log('Chat delete failed', error); return; }
+  if (id === currentChatId) {
+    currentChatId = null;
+    showFreshChat('Chat deleted. 🌙');
+  }
+  refreshChatList();
 }
 
 // Switches the mode buttons without clearing the chat
@@ -103,10 +116,6 @@ function syncAuthChanged(session) {
 // After logging out, nothing from your account stays on screen or in this browser
 function resetChatView() {
   currentChatId = null;
-  conversationHistory.length = 0;
-  localStorage.removeItem('moonbyte-history');
-  document.getElementById('chat-box').innerHTML = '';
-  addMessage('assistant', 'Logged out. Your saved chats are safe in your account. 🌙');
+  showFreshChat('Logged out. Your saved chats are safe in your account. 🌙');
   renderChatHistory();
-  modeUi(currentMode);
 }
