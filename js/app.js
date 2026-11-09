@@ -31,9 +31,7 @@ When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each
 Respond ONLY with valid JSON, no text outside it, in this exact shape:
 {"message": "short friendly reply, 1-2 sentences", "recipe": {"title": "Butter chicken", "wiki": "Butter chicken", "servings": 4, "ingredients": [{"amount": "500 g", "item": "chicken thighs, boneless", "flags": ["meat"]}], "steps": [{"text": "Marinate the chicken for 30 minutes.", "minutes": 30}]}}
 When he asks for a recipe, fill "recipe" (at most 12 ingredients and 8 short steps). For anything else (substitutes, tips, questions) answer in "message" and set "recipe" to null. "wiki" is the English Wikipedia article title of the dish. "flags" lists any of meat, nuts, dairy, gluten that the ingredient contains (use [] if none; fish counts as meat). "minutes" is only for steps with a set waiting or cooking time.`,
-      ppt: `You are Moonbyte in Presentation Mode. Irfan will describe a topic and how many slides he wants. Respond ONLY with valid JSON, no other text, no markdown code fences, in this exact structure:
-      {"title": "Presentation Title", "slides": [{"heading": "Slide Heading", "bullets": ["point 1", "point 2", "point 3"]}]}
-      Keep each bullet short (under 15 words). Match the number of slides Irfan asks for (default to 5 if he doesn't say). Do not include anything outside the JSON object.`
+     
 };
     let currentMode = "general";
     let systemPrompt = modes.general;
@@ -129,7 +127,7 @@ When he asks for a recipe, fill "recipe" (at most 12 ingredients and 8 short ste
         code: "💻 Code Mode ON! Share your code or tell me what you're building Irfan!",
         style: "👔 Style Mode ON! Let's talk fashion Irfan. What's the occasion?",
         recipe: "🍳 Recipe Mode ON! Hungry Irfan? Tell me what ingredients you have!",
-        ppt: "📊 Presentation Mode ON! Tell me the topic and how many slides you want, Irfan!"
+       ppt: "📊 Presentation Mode ON! Fill in the form below and I'll build your deck, Irfan."
       };
       addMessage("assistant", welcomes[mode]);
       if (typeof modeUi === 'function') modeUi(mode);
@@ -215,19 +213,8 @@ if (currentMode === "style" && reply && showStyleReply(thinkingDiv, reply)) {
   // outfit cards were drawn by showStyleReply (js/wardrobe.js)
 } else if (currentMode === "recipe" && reply && showRecipeReply(thinkingDiv, reply)) {
   // recipe card was drawn by showRecipeReply (js/recipe.js)
-} else if (currentMode === "ppt" && reply) {
-  try {
-    const jsonMatch = reply.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON object found in reply");
-    const cleaned = jsonMatch[0];
-    const data = JSON.parse(cleaned);
-    generatePPTX(data);
-    thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">✅ Your presentation "${data.title}" is ready! Downloading now...</div></div>`;
-  } catch (e) {
-    console.log("PPT parse failed", e);
-    console.log("Raw reply was:", reply);
-    thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">Couldn't build the slides from that reply — try rephrasing your topic.</div></div>`;
-  }
+} else if (currentMode === "ppt" && reply && showPptReply(thinkingDiv, reply)) {
+  // the deck is built by showPptReply (js/ppt.js)
 } else {
 const replyText = reply || "Something went wrong. Try again!";
 thinkingDiv.innerHTML = `<div class="msg-avatar ai-av">🌙</div><div class="msg-content"><div class="msg-bubble">${formatReply(replyText)}</div></div>`;
@@ -249,27 +236,6 @@ if (reply && typeof syncExchange === 'function') syncExchange();
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/\n/g, '<br>');
     }
-    function generatePPTX(data) {
-  const pptx = new PptxGenJS();
-  pptx.defineLayout({ name: 'MOON', width: 10, height: 5.63 });
-  pptx.layout = 'MOON';
-
-  const titleSlide = pptx.addSlide();
-  titleSlide.background = { color: '1a1a2e' };
-  titleSlide.addText(data.title || 'Presentation', {
-    x: 0.5, y: 2, w: 9, h: 1.5, fontSize: 36, bold: true, color: 'FFFFFF', align: 'center'
-  });
-
-  (data.slides || []).forEach(slide => {
-    const s = pptx.addSlide();
-    s.background = { color: 'FFFFFF' };
-    s.addText(slide.heading || '', { x: 0.5, y: 0.4, w: 9, h: 0.8, fontSize: 28, bold: true, color: '1a1a2e' });
-    const bulletText = (slide.bullets || []).map(b => ({ text: b, options: { bullet: true, breakLine: true } }));
-    s.addText(bulletText, { x: 0.7, y: 1.4, w: 8.5, h: 3.8, fontSize: 18, color: '333333' });
-  });
-
-  pptx.writeFile({ fileName: (data.title || 'Moonbyte-Presentation').replace(/[^a-z0-9]/gi, '_') + '.pptx' });
-}
     function addMessage(role, text) {
   const box = document.getElementById("chat-box");
   const div = document.createElement("div");

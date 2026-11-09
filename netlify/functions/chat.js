@@ -54,7 +54,7 @@ exports.handler = async function(event) {
           { role: "system", content: systemPrompt },
           ...messages
         ],
-        max_tokens: 1500
+        max_tokens: 4000
       })
     });
 

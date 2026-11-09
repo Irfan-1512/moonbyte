@@ -801,3 +801,18 @@ body[data-mode="ppt"]    { --accent: #a78bfa; --accent-glow: rgba(167, 139, 250,
 }
 .chat-history-item:hover .chat-del, .chat-del:focus-visible { opacity: 1; }
 .chat-del:hover { color: #e5484d; }
+/* ---- PPT form ---- */
+.ppt-form { margin: 4px 0 12px 48px; padding: 16px; border: 1px solid var(--glass-border); border-radius: 16px; background: var(--glass); display: flex; flex-direction: column; gap: 12px; max-width: 520px; }
+.ppt-form h3 { margin: 0; font-size: 16px; }
+.ppt-form label, .ppt-label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text2); }
+.ppt-form input[type="text"], .ppt-form input[type="number"], .ppt-form select, .ppt-form textarea { background: var(--input-bg); color: var(--text); border: 1px solid var(--glass-border); border-radius: 10px; padding: 8px 10px; font: inherit; font-size: 14px; }
+.ppt-form input:focus, .ppt-form select:focus, .ppt-form textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ppt-row { display: grid; grid-template-columns: 70px 1fr 1fr; gap: 8px; }
+.ppt-themes { display: flex; flex-wrap: wrap; gap: 8px; }
+.ppt-swatch { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--glass-border); background: var(--glass); color: var(--text); font-size: 13px; cursor: pointer; }
+.ppt-swatch::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--d); }
+.ppt-swatch.on { border-color: var(--accent); background: var(--glass-hover); }
+.ppt-checks { display: flex; flex-wrap: wrap; gap: 14px; }
+.ppt-checks label { flex-direction: row; align-items: center; gap: 6px; font-size: 13px; color: var(--text); }
+.ppt-go { padding: 10px; border: 0; border-radius: 999px; background: var(--accent); color: #111; font-weight: 600; font-size: 14px; cursor: pointer; }
+@media (max-width: 600px) { .ppt-form { margin-left: 0; max-width: none; } .ppt-row { grid-template-columns: 1fr 1fr; } .ppt-row label:first-child { grid-column: 1 / -1; } }
