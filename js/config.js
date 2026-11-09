@@ -1,5 +1,4 @@
-// Supabase settings. These two values are public by design, so they are safe here.
-// NEVER put the "service_role" or "secret" key in this file.
-// Where to find them: Supabase dashboard > Project Settings > API Keys.
-const SUPABASE_URL = 'https://supabase.com/dashboard/project/oieiqnlrymhbhrlirvxw/settings/general';
-const SUPABASE_KEY = '?WhMRqX%33ZdGtr';
+// js/config.js
+// Public Supabase values, safe in the browser. NEVER put the "secret" or "service_role" key here.
+const SUPABASE_URL = 'https://oieiqnlrymhbhrlirvxw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VQO47pMpjLpo5mBe79YKqg_LoP_tXrW';
