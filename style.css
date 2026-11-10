@@ -36,6 +36,7 @@
       background: var(--bg);
       color: var(--text);
       height: 100vh;
+      height: 100dvh;
       display: flex;
       overflow: hidden;
       transition: background 0.3s;
@@ -440,6 +441,7 @@
         top: 0;
         left: 0;
         height: 100vh;
+        height: 100dvh;
         transform: translateX(-100%);
         z-index: 100;
       }
@@ -816,3 +818,18 @@ body[data-mode="ppt"]    { --accent: #a78bfa; --accent-glow: rgba(167, 139, 250,
 .ppt-checks label { flex-direction: row; align-items: center; gap: 6px; font-size: 13px; color: var(--text); }
 .ppt-go { padding: 10px; border: 0; border-radius: 999px; background: var(--accent); color: #111; font-weight: 600; font-size: 14px; cursor: pointer; }
 @media (max-width: 600px) { .ppt-form { margin-left: 0; max-width: none; } .ppt-row { grid-template-columns: 1fr 1fr; } .ppt-row label:first-child { grid-column: 1 / -1; } }
+/* ---- Phone layout ---- */
+@media (max-width: 600px) {
+  .header { padding: 10px 12px; gap: 8px; }
+  .header-left { gap: 8px; min-width: 0; flex: 1; }
+  .header-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .status { padding: 4px 6px; }
+  .status-text { display: none; }
+  .header-right { gap: 6px; flex-shrink: 0; }
+  .icon-btn { width: 34px; height: 34px; font-size: 14px; }
+  .modes-bar { padding: 8px 12px; }
+  .input-area { padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); }
+  .input-hint { display: none; }
+  .input-wrap { min-width: 0; padding: 10px 12px; }
+  #user-input { min-width: 0; width: 100%; }
+}
