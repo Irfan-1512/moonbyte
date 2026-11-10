@@ -17,12 +17,19 @@
     <div class="auth-logo">🌙 Moonbyte</div>
     <h2 id="auth-title">Log in</h2>
     <p id="auth-note" class="auth-note"></p>
-    <label for="auth-email">Email</label>
-    <input id="auth-email" type="email" autocomplete="email" />
-    <label for="auth-password">Password</label>
-    <input id="auth-password" type="password" autocomplete="current-password" />
-    <div id="auth-error" class="auth-error" role="alert"></div>
-    <button id="auth-submit" class="auth-submit" onclick="submitAuth()">Log in</button>
+    
+<form id="auth-form" onsubmit="return false">
+  <label for="auth-email">Email</label>
+  <input id="auth-email" name="email" type="email" autocomplete="email" />
+
+  <label for="auth-password">Password</label>
+  <input id="auth-password" name="password" type="password" autocomplete="current-password" />
+
+  <div id="auth-error" class="auth-error" role="alert"></div>
+
+  <button id="auth-submit" class="auth-submit" type="button" onclick="submitAuth()">Log in</button>
+</form>
+
     <p class="auth-switch">
       <span id="auth-switch-text">New here?</span>
       <a href="#" id="auth-switch-link" onclick="toggleAuthMode(event)">Create an account</a>
