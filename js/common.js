@@ -44,37 +44,61 @@ const WIKI_HOST = /^https:\/\/(upload|thumb)\.wikimedia\.org\//;   // Wikipedia 
 const imageCache = new Map();                  // "title|size" -> promise of image url ('' = none)
 
 async function fetchWikiThumb(title, size) {
+  const cleanTitle = typeof title === 'string' ? title.trim() : '';
+  if (!WIKI_TITLE.test(cleanTitle)) return '';
+
   try {
-    const api = 'https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=thumbnail'
-      + '&pithumbsize=' + size + '&redirects=1&format=json&origin=*&titles=' + encodeURIComponent(title);
-    const res = await fetch(api);
+    // 1. Direct page title lookup (supports automatic redirects)
+    const directApi = 'https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=thumbnail'
+      + '&pithumbsize=' + size + '&redirects=1&format=json&origin=*&titles=' + encodeURIComponent(cleanTitle);
+    const res = await fetch(directApi);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const pages = Object.values((data.query && data.query.pages) || {});
     const src = pages[0] && pages[0].thumbnail && pages[0].thumbnail.source;
     if (typeof src === 'string' && WIKI_HOST.test(src)) return src;
+
+    // 2. Search fallback if direct match has no image or the article title differed slightly
+    const searchApi = 'https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrlimit=3&prop=pageimages&piprop=thumbnail'
+      + '&pithumbsize=' + size + '&format=json&origin=*&gsrsearch=' + encodeURIComponent(cleanTitle);
+    const searchRes = await fetch(searchApi);
+    if (searchRes.ok) {
+      const searchData = await searchRes.json();
+      const searchPages = Object.values((searchData.query && searchData.query.pages) || {})
+        .sort((x, y) => (x.index || 0) - (y.index || 0));
+      const hit = searchPages.find((p) => p.thumbnail && WIKI_HOST.test(String(p.thumbnail.source)));
+      if (hit && hit.thumbnail && hit.thumbnail.source) return hit.thumbnail.source;
+    }
   } catch (err) {
-    console.log('Image lookup failed for', title, err);
+    console.log('Image lookup failed for', cleanTitle, err);
   }
   return '';
 }
 
-// One lookup per title and size, even when several items ask at the same moment
+// One lookup per title and size, normalized to prevent duplicate fetches
 function wikiThumb(title, size = 160) {
-  const key = title + '|' + size;
-  if (!imageCache.has(key)) imageCache.set(key, fetchWikiThumb(title, size));
+  const cleanTitle = typeof title === 'string' ? title.trim() : '';
+  if (!cleanTitle) return Promise.resolve('');
+  const key = cleanTitle.toLowerCase() + '|' + size;
+  if (!imageCache.has(key)) imageCache.set(key, fetchWikiThumb(cleanTitle, size));
   return imageCache.get(key);
 }
 
 // Fills in <img data-wiki="Title"> pictures after cards are on the page.
-// If no picture exists, the slot (and its credit line) is removed.
+// If no picture exists or image loading fails, the slot and its credit line are cleanly removed.
 function loadImages(root) {
+  if (!root) return;
   root.querySelectorAll('img[data-wiki]').forEach(async (img) => {
+    const title = img.dataset.wiki;
     const size = Math.min(Math.max(Number(img.dataset.size) || 160, 50), 800);
-    const url = await wikiThumb(img.dataset.wiki, size);
+    const url = await wikiThumb(title, size);
     const next = img.nextElementSibling;
     const credit = next && next.classList.contains('photo-credit') ? next : null;
     if (url) {
+      img.onerror = () => {
+        img.remove();
+        if (credit) credit.remove();
+      };
       img.src = url;
       img.hidden = false;
       if (credit) credit.hidden = false;

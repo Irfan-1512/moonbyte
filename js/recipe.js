@@ -29,8 +29,7 @@ function normalizeRecipe(r) {
     .slice(0, 12)
     .map((s) => {
       const m = Math.round(Number(s.minutes));
-                  const wiki = clip(s.wiki, 60);
-      return { text: clip(s.text, 300), minutes: m >= 1 && m <= 180 ? m : 0, wiki: WIKI_TITLE.test(wiki) ? wiki : '' };
+      return { text: clip(s.text, 300), minutes: m >= 1 && m <= 180 ? m : 0 };
     });
   if (!title || !ingredients.length || !steps.length) return null;
   const servings = Math.round(Number(r.servings));
@@ -62,9 +61,8 @@ function recipeHtml(r, idx, savedId) {
   const ings = r.ingredients.map((i) =>
     `<li><label><input type="checkbox" data-flags="${i.flags.join(' ')}">`
     + `<span>${escHtml((i.amount ? i.amount + ' ' : '') + i.item)}</span></label></li>`).join('');
-      const steps = r.steps.map((s) =>
-    `<li><span>${escHtml(s.text)}</span>${s.minutes ? timerHtml(s.minutes) : ''}${s.wiki
-      ? `<img class="step-photo" data-wiki="${escHtml(s.wiki)}" data-size="480" alt="" hidden><div class="photo-credit" hidden>Photo: Wikipedia</div>` : ''}</li>`).join('');
+  const steps = r.steps.map((s) =>
+    `<li><span>${escHtml(s.text)}</span>${s.minutes ? timerHtml(s.minutes) : ''}</li>`).join('');
   const diets = DIETS.map((d) =>
     `<label class="diet"><input type="checkbox" data-diet="${d.flag}"> ${d.label}</label>`).join('');
   const actions = savedId

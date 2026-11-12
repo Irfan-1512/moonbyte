@@ -324,6 +324,23 @@
     .msg-content { display: flex; flex-direction: column; gap: 4px; flex: 1; }
     .msg-time { font-size: 11px; opacity: 0.5; padding: 0 4px; }
     .message.user .msg-time { text-align: right; }
+    .msg-footer { display: flex; align-items: center; gap: 8px; padding: 0 4px; }
+    .listen-btn {
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+      opacity: 0.6;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s, background 0.2s, transform 0.1s;
+    }
+    .listen-btn:hover { opacity: 1; background: var(--glass-hover); }
+    .listen-btn:active { transform: scale(0.92); }
     .msg-bubble {
       padding: 12px 16px;
       border-radius: 16px;
