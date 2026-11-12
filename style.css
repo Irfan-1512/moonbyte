@@ -778,8 +778,8 @@ body[data-mode="ppt"]    { --accent: #a78bfa; --accent-glow: rgba(167, 139, 250,
 
 /* ---- Item pictures on outfit cards ---- */
 .item-img {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid var(--glass-border);
@@ -833,3 +833,10 @@ body[data-mode="ppt"]    { --accent: #a78bfa; --accent-glow: rgba(167, 139, 250,
   .input-wrap { min-width: 0; padding: 10px 12px; }
   #user-input { min-width: 0; width: 100%; }
 }
+/* ---- Pexels photos ---- */
+.outfit-photo { display: block; width: 100%; max-height: 360px; object-fit: cover; object-position: top; border-radius: 12px; }
+.step-photo { display: block; width: 100%; max-width: 360px; border-radius: 10px; margin-top: 8px; }
+.outfit-photo[hidden], .step-photo[hidden] { display: none; }
+.photo-credit a { color: inherit; }
+/* ---- Logo link ---- */
+a.sidebar-logo { color: inherit; text-decoration: none; }

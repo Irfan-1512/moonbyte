@@ -182,7 +182,7 @@ async function pptThumbUrl(title) {
     if (!res.ok) return null;
     const data = await res.json();
     const pages = Object.values((data.query && data.query.pages) || {}).sort((x, y) => x.index - y.index);
-    const hit = pages.find((p) => p.thumbnail && String(p.thumbnail.source).startsWith('https://upload.wikimedia.org/'));
+    const hit = pages.find((p) => p.thumbnail && WIKI_HOST.test(String(p.thumbnail.source)));
     return hit ? { url: hit.thumbnail.source, page: String(hit.title) } : null;
   } catch (err) {
     return null;

@@ -40,6 +40,7 @@ function showFormatFailure(div) {
 
 // ---- Pictures from Wikipedia (free, no API key) ----
 const WIKI_TITLE = /^[\w\s'().,&-]{2,60}$/;   // safe article titles only
+const WIKI_HOST = /^https:\/\/(upload|thumb)\.wikimedia\.org\//;   // Wikipedia now serves thumbnails from either host
 const imageCache = new Map();                  // "title|size" -> promise of image url ('' = none)
 
 async function fetchWikiThumb(title, size) {
@@ -51,7 +52,7 @@ async function fetchWikiThumb(title, size) {
     const data = await res.json();
     const pages = Object.values((data.query && data.query.pages) || {});
     const src = pages[0] && pages[0].thumbnail && pages[0].thumbnail.source;
-    if (typeof src === 'string' && src.startsWith('https://upload.wikimedia.org/')) return src;
+    if (typeof src === 'string' && WIKI_HOST.test(src)) return src;
   } catch (err) {
     console.log('Image lookup failed for', title, err);
   }

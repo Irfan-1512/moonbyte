@@ -25,13 +25,12 @@ How to talk to him:
       code: `You are Moonbyte in Code Mode. Help Irfan with code like a senior developer friend. He knows HTML, CSS, JavaScript and is learning more. Be direct, explain clearly, fix his bugs, suggest improvements. Talk casually.`,
       style: `You are Moonbyte in Style Mode, Irfan's personal fashion advisor and friend. He likes men's fashion and is a college student in Hyderabad (warm weather, practical budget). Be casual and real.
 Respond ONLY with valid JSON, no text outside it, in this exact shape:
-{"message": "short friendly reply, 1-3 sentences", "outfits": [{"title": "Outfit name", "occasion": "where to wear it", "items": [{"name": "Navy linen shirt", "color": "navy", "hex": "#1f2a44", "wiki": "Dress shirt"}], "tip": "one short styling tip"}]}
-When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each. For a general fashion question, answer in "message" and use an empty "outfits" list. Every hex must be a 6-digit value like #1f2a44. "wiki" is the English Wikipedia article title for that kind of garment, kept generic (examples: T-shirt, Blazer, Jeans, Chino cloth, Loafer, Sneakers, Necklace).`,
+{"message": "short friendly reply, 1-3 sentences", "outfits": [{"title": "Outfit name", "occasion": "where to wear it", "items": [{"name": "Navy linen shirt", "color": "navy", "hex": "#1f2a44", "wiki": "Dress shirt"}],"tip": "one short styling tip"}]}
+When he asks for outfit ideas, give 2 outfits (3 at most) with 3 to 5 items each. For a general fashion question, answer in "message" and use an empty "outfits" list. Every hex must be a 6-digit value like #1f2a44. "wiki" is the English Wikipedia article title for that kind of garment, kept generic (examples: T-shirt, Blazer, Jeans, Chino cloth, Loafer, Sneakers, Necklace). The outfit-level "wiki" is the English Wikipedia article title of the overall style that has photos of people wearing it, kept generic (examples: Smart casual, Business casual, Streetwear, Kurta, Sherwani, Blazer).`,
       recipe: `You are Moonbyte in Recipe Mode, Irfan's foodie friend. He loves biryani and pizza. Keep it fun, casual and practical.
 Respond ONLY with valid JSON, no text outside it, in this exact shape:
-{"message": "short friendly reply, 1-2 sentences", "recipe": {"title": "Butter chicken", "wiki": "Butter chicken", "servings": 4, "ingredients": [{"amount": "500 g", "item": "chicken thighs, boneless", "flags": ["meat"]}], "steps": [{"text": "Marinate the chicken for 30 minutes.", "minutes": 30}]}}
-When he asks for a recipe, fill "recipe" (at most 12 ingredients and 8 short steps). For anything else (substitutes, tips, questions) answer in "message" and set "recipe" to null. "wiki" is the English Wikipedia article title of the dish. "flags" lists any of meat, nuts, dairy, gluten that the ingredient contains (use [] if none; fish counts as meat). "minutes" is only for steps with a set waiting or cooking time.`,
-     
+{"message": "short friendly reply, 1-2 sentences", "recipe": {"title": "Butter chicken", "wiki": "Butter chicken", "servings": 4, "ingredients": [{"amount": "500 g", "item": "chicken thighs, boneless", "flags": ["meat"]}], "steps": [{"text": "Marinate the chicken for 30 minutes.", "minutes": 30, "wiki": "Marination"}]}}
+When he asks for a recipe, fill "recipe" (at most 12 ingredients and 8 short steps). For anything else (substitutes, tips, questions) answer in "message" and set "recipe" to null. "wiki" is the English Wikipedia article title of the dish. "flags" lists any of meat, nuts, dairy, gluten that the ingredient contains (use [] if none; fish counts as meat). "minutes" is only for steps with a set waiting or cooking time. A step "wiki" is optional: the English Wikipedia article title of the cooking technique in that step (examples: Dicing, Kneading, Marination, Simmering, Frying, Whisk), plain letters only; add it to at most 4 key technique steps and leave it out of the others.`,
 };
     let currentMode = "general";
     let systemPrompt = modes.general;
@@ -127,7 +126,7 @@ When he asks for a recipe, fill "recipe" (at most 12 ingredients and 8 short ste
         code: "💻 Code Mode ON! Share your code or tell me what you're building Irfan!",
         style: "👔 Style Mode ON! Let's talk fashion Irfan. What's the occasion?",
         recipe: "🍳 Recipe Mode ON! Hungry Irfan? Tell me what ingredients you have!",
-       ppt: "📊 Presentation Mode ON! Fill in the form below and I'll build your deck, Irfan."
+        ppt: "📊 Presentation Mode ON! Fill in the form below and I'll build your deck, Irfan."
       };
       addMessage("assistant", welcomes[mode]);
       if (typeof modeUi === 'function') modeUi(mode);

@@ -12,13 +12,14 @@ function outfitHtml(o, idx, savedId) {
       const color = it.color ? ' · ' + escHtml(it.color) : '';
       const wiki = typeof it.wiki === 'string' ? it.wiki.trim() : '';
       const pic = WIKI_TITLE.test(wiki)
-        ? `<img class="item-img" data-wiki="${escHtml(wiki)}" alt="" width="56" height="56" hidden>` : '';
+      ? `<img class="item-img" data-wiki="${escHtml(wiki)}" alt="" width="72" height="72" hidden>` : '';
       return `<li>${pic}${dot}<span><strong>${escHtml(it.name)}</strong>${color}</span></li>`;
     }).join('');
   const action = savedId
     ? `<button class="outfit-btn danger" onclick="deleteOutfit('${escHtml(savedId)}')">Remove</button>`
     : `<button class="outfit-btn" onclick="saveOutfit(${idx}, this)">＋ Add to my wardrobe</button>`;
   return `<div class="outfit-card">
+    
     <div class="outfit-title">${escHtml(o.title)}</div>
     ${o.occasion ? `<div class="outfit-occasion">${escHtml(o.occasion)}</div>` : ''}
     <ul class="outfit-items">${items}</ul>
